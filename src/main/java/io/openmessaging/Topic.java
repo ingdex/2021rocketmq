@@ -8,7 +8,6 @@ import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.io.File;
-import javax.management.Query;
 
 public class Topic {
     String topicId;
