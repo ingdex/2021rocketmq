@@ -1,0 +1,14 @@
+2021-09-17 21:23:02  [ main:0 ] - [ DEBUG ]  append: { topic: a, queueId: 1001, data size4 }
+2021-09-17 21:23:02  [ main:8 ] - [ DEBUG ]  ret: offset = 0
+2021-09-17 21:23:02  [ main:9 ] - [ DEBUG ]  append: { topic: b, queueId: 1001, data size4 }
+2021-09-17 21:23:02  [ main:10 ] - [ DEBUG ]  ret: offset = 0
+2021-09-17 21:23:02  [ main:10 ] - [ DEBUG ]  append: { topic: a, queueId: 1000, data size4 }
+2021-09-17 21:23:02  [ main:11 ] - [ DEBUG ]  ret: offset = 0
+2021-09-17 21:23:02  [ main:13 ] - [ DEBUG ]  append: { topic: b, queueId: 1001, data size4 }
+2021-09-17 21:23:02  [ main:14 ] - [ DEBUG ]  ret: offset = 1
+2021-09-17 21:23:02  [ main:14 ] - [ DEBUG ]  getRange: { topic: a, queueId: 1000, offset1, fetchNum2 }
+2021-09-17 21:23:02  [ main:14 ] - [ DEBUG ]  ret: {}
+2021-09-17 21:23:02  [ main:15 ] - [ DEBUG ]  getRange: { topic: b, queueId: 1001, offset0, fetchNum2 }
+2021-09-17 21:23:02  [ main:15 ] - [ DEBUG ]  ret: {0=java.nio.HeapByteBuffer[pos=4 lim=4 cap=4], 1=java.nio.HeapByteBuffer[pos=4 lim=4 cap=4]}
+2021-09-17 21:23:02  [ main:16 ] - [ DEBUG ]  getRange: { topic: b, queueId: 1001, offset1, fetchNum2 }
+2021-09-17 21:23:02  [ main:16 ] - [ DEBUG ]  ret: {0=java.nio.HeapByteBuffer[pos=4 lim=4 cap=4]}
