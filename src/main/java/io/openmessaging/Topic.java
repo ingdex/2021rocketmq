@@ -34,9 +34,7 @@ public class Topic {
         MyQueue que = queueMap.get(queueId);
         // Queue que = queueMap.getOrPutDefault(queueMap, Integer.valueOf(queueId), new Query());
         if (que == null) {
-            File directory = new File("data/" + topicId);
-            directory.mkdirs();
-            queueMap.put(queueId, new MyQueue(null, "data/" + topicId + "/" + String.valueOf(queueId)));
+            queueMap.put(queueId, new MyQueue(null, "/essd/" + topicId + String.valueOf(queueId)));
             que = queueMap.get(queueId);
         }
         
