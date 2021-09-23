@@ -12,7 +12,7 @@ public class iStorage {
     HashMap <String, iStoragePool> topicPools = new HashMap<>();
 
     iStorage() {
-        String dir = Config.dataDir;
+        String dir = iConfig.dataDir;
         File dirFile = new File(dir);
         File[] files = dirFile.listFiles();
         for (File file:files) {

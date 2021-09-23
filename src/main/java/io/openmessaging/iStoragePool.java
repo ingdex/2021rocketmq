@@ -27,7 +27,7 @@ public class iStoragePool {
     long pyhsicalOffset = 0;    // 当前写入位置距离StoragePool首地址的绝对偏移
     long currentBarrierOffset = 0;
     public final static long FILESIZE = 1 << 30;
-    String dir = Config.dataDir;
+    String dir = iConfig.dataDir;
     private String poolName;
 
     public iStoragePool(String poolName) {
