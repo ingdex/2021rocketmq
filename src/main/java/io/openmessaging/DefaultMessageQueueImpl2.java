@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultMessageQueueImpl2 extends MessageQueue {
     ConcurrentHashMap<String, Map<Integer, Long>> appendOffset = new ConcurrentHashMap<>();
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
-    Storage storage = new Storage();
+    iStorage storage = new iStorage();
 
     // getOrPutDefault 若指定key不存在，则插入defaultValue并返回
     private <K, V> V getOrPutDefault(Map<K, V> map, K key, V defaultValue){

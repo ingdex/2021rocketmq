@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 
 // 线程不安全
-public class StoragePool {
-    HashMap <String, Message> appendMsg = new HashMap<>();
+public class iStoragePool {
+    HashMap <String, iMessage> appendMsg = new HashMap<>();
     HashMap <String, FileChannel> channelMap = new HashMap<>();
     // private FileChannel channel;
     long pyhsicalOffset = 0;    // 当前写入位置距离StoragePool首地址的绝对偏移
@@ -30,7 +30,7 @@ public class StoragePool {
     String dir = Config.dataDir;
     private String poolName;
 
-    public StoragePool(String poolName) {
+    public iStoragePool(String poolName) {
         this.poolName = poolName;
     }
 
@@ -57,7 +57,7 @@ public class StoragePool {
                 channel.read(dataSizeByteBuffer, readPos);
                 dataSizeByteBuffer.rewind();
                 int dataSize = dataSizeByteBuffer.getInt();                
-                Message msg = new Message(barrierOffset, Long.valueOf(readPos+4), (short)(dataSize), path);
+                iMessage msg = new iMessage(barrierOffset, Long.valueOf(readPos+4), (short)(dataSize), path);
                 readPos += dataSize + 4;
                 appendMsg.put(key, msg);
                 keySizeByteBuffer.clear();
@@ -99,7 +99,7 @@ public class StoragePool {
         FileChannel channel = getFileChannel(filename);
 
         long dataPhysicalOffset = pyhsicalOffset + dataOffset;
-        Message msg = new Message(currentBarrierOffset, dataPhysicalOffset, (short)(data.capacity()), filename);
+        iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, (short)(data.capacity()), filename);
         appendMsg.put(key, msg);
         // 
         try {
@@ -126,7 +126,7 @@ public class StoragePool {
     public ByteBuffer get(String key) {
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset" + String.valueOf(offset) + ", fetchNum" + String.valueOf(fetchNum) + " }");
         ByteBuffer ret = null;
-        Message msg = appendMsg.get(key);
+        iMessage msg = appendMsg.get(key);
         if (msg == null) {
             return ret;
         }
