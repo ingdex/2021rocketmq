@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 public class iStorage {
 
-    HashMap <String, iStoragePool> topicPools = new HashMap<>();
+    ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
 
     iStorage() {
         String dir = iConfig.dataDir;
