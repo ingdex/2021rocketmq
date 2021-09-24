@@ -29,12 +29,12 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     @Override
     public long append(String topic, int queueId, ByteBuffer data){
         // 获取该 topic-queueId 下的最大位点 offset
-        long x = appendId.getAndIncrement();
+        // long x = appendId.getAndIncrement();
         Map<Integer, Long> topicOffset = getOrPutDefault(appendOffset, topic, new HashMap<>());
         long offset = topicOffset.getOrDefault(queueId, 0L);
         // 更新最大位点
         topicOffset.put(queueId, offset+1);
-        if (x >= 1601900) 
+        if ((topic == "topic22") && (queueId == 937)) 
             logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         storage.append(topic, queueId, offset, data);
         
@@ -50,8 +50,11 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     @Override
     public Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
         Map<Integer, ByteBuffer> ret = storage.getRange(topic, queueId, offset, fetchNum);
-        logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
-        printMap(ret);
+        
+        if ((topic == "topic22") && (queueId == 937)) {
+            logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
+            printMap(ret);
+        }
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
         return ret;
     }
