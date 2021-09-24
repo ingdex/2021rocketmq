@@ -157,7 +157,7 @@
 //         return new String(bytes);
 //     }
 
-//     public static void printMap(Map<Integer, ByteBuffer> map) {
+//     public static void printMap(Map<Integer, ByteBuffer> map, Boolean printDataStr) {
 //         if (map.isEmpty()) {
 //             System.out.println("{ }");
 //             return;
@@ -165,8 +165,13 @@
 //         System.out.println("{");
 //         for (Map.Entry<Integer, ByteBuffer> entry : map.entrySet()) {
 //             ByteBuffer buf = entry.getValue();
-//             String str = bb_to_str(buf);
-//             System.out.println("Key = " + entry.getKey() + ", Value = " + str);
+//             if (printDataStr) {
+//                 String str = bb_to_str(buf);
+//                 System.out.println("Key = " + entry.getKey() + ", Value = " + str);
+//             } else {
+//                 System.out.println("Key = " + entry.getKey() + ", DataSize = " + buf.capacity());
+//             }
+            
 //         }
 //         System.out.println("}");
 //     }
@@ -178,24 +183,34 @@
 //         // System.out.println("generate mq request");
 //         // t.genData(fileCount);
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
-//         long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
-//         System.out.println(ret);
-//         ret = mq.append("b", 1001, ByteBuffer.wrap("2021".getBytes()));
-//         System.out.println(ret);
-//         ret = mq.append("a", 1000, ByteBuffer.wrap("2021".getBytes()));
-//         System.out.println(ret);
-//         ret = mq.append("b", 1001, ByteBuffer.wrap("2021".getBytes()));
-//         System.out.println(ret);
+//         // long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
+//         // System.out.println(ret);
+//         // ret = mq.append("b", 1001, ByteBuffer.wrap("20212".getBytes()));
+//         // System.out.println(ret);
+//         // ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
+//         // System.out.println(ret);
+//         // ret = mq.append("b", 1001, ByteBuffer.wrap("20214".getBytes()));
+//         // System.out.println(ret);
+
+//         // byte[] b = new byte[17408];
+//         // new Random().nextBytes(b);
+//         // ByteBuffer buf = ByteBuffer.wrap(b);
+//         // // buf.position(536870912);
+//         // for (int i=0; i<150000; i++) {
+//         //     buf.rewind();
+//         //     ret = mq.append("a", 1000, buf);
+//         // }
+
 //         Map<Integer, ByteBuffer> retMap;
-//         retMap = mq.getRange("a", 1000, 1, 2);
-//         System.out.println("getRange(a, 1000, 1, 2): ");
-//         printMap(retMap);
+//         retMap = mq.getRange("a", 1000, 0, 4);
+//         System.out.println("getRange(a, 1000, 0, 4): ");
+//         printMap(retMap, false);
 //         retMap = mq.getRange("b", 1001, 0, 2);
 //         System.out.println("getRange(b, 1001, 0, 2): ");
-//         printMap(retMap);
+//         printMap(retMap, false);
 //         retMap = mq.getRange("b", 1001, 1, 2);
 //         System.out.println("getRange(b, 1001, 1, 2): ");
-//         printMap(retMap);
+//         printMap(retMap, false);
 //         // retMap = mq.;
 //         // System.out.println(" " + retMap);
         

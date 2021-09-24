@@ -42,13 +42,15 @@ public class iStoragePool {
                 keyBuffer.flip();
                 String key = new String(keyBuffer.array());
                 readPos += keySize;
+                
                 channel.read(dataSizeByteBuffer, readPos);
-                dataSizeByteBuffer.rewind();
-                int dataSize = dataSizeByteBuffer.getInt();                
-                iMessage msg = new iMessage(barrierOffset, Long.valueOf(readPos+4), (short)(dataSize), path);
+                dataSizeByteBuffer.flip();
+                int dataSize = dataSizeByteBuffer.getInt();
+                iMessage msg = new iMessage(barrierOffset, Long.valueOf(readPos+4), dataSize, path);
                 readPos += dataSize + 4;
                 appendMsg.put(key, msg);
                 keySizeByteBuffer.clear();
+                dataSizeByteBuffer.clear();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,7 +81,7 @@ public class iStoragePool {
         int dataOffset = 4 + key.getBytes().length + 4;
         int writeBufSize = dataOffset + data.remaining();
         if (pyhsicalOffset + writeBufSize > currentBarrierOffset + FILESIZE) {
-            currentBarrierOffset += FILESIZE;
+            currentBarrierOffset += pyhsicalOffset;
             pyhsicalOffset = currentBarrierOffset;
             // channel = null;
         }
@@ -87,7 +89,7 @@ public class iStoragePool {
         FileChannel channel = getFileChannel(filename);
 
         long dataPhysicalOffset = pyhsicalOffset + dataOffset;
-        iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, (short)(data.capacity()), filename);
+        iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.capacity(), filename);
         appendMsg.put(key, msg);
         // 
         try {
@@ -97,7 +99,9 @@ public class iStoragePool {
             ByteBuffer buf = ByteBuffer.allocate(writeBufSize);
             buf.putInt(key.length());
             buf.put(key.getBytes());
+            int dataSize = data.remaining();
             buf.putInt(data.remaining());
+
             buf.put(data);
             // channel.position(realtiveWritePos);
             buf.flip();
