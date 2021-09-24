@@ -31,7 +31,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         long offset = topicOffset.getOrDefault(queueId, 0L);
         // 更新最大位点
         topicOffset.put(queueId, offset+1);
-        logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
+        // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         storage.append(topic, queueId, offset, data);
         
         // Map<Integer, Map<Long, ByteBuffer>> map1 = getOrPutDefault(appendData, topic, new HashMap<>());
@@ -46,7 +46,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     @Override
     public Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
         Map<Integer, ByteBuffer> ret = storage.getRange(topic, queueId, offset, fetchNum);
-        logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
+        // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
         return ret;
     }
