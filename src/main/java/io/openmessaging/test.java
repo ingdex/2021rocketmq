@@ -183,9 +183,9 @@
 //         // System.out.println("generate mq request");
 //         // t.genData(fileCount);
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
-//         // long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
+//         long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
 //         // System.out.println(ret);
-//         // ret = mq.append("b", 1001, ByteBuffer.wrap("20212".getBytes()));
+//         ret = mq.append("topic22", 1001, ByteBuffer.wrap("20212".getBytes()));
 //         // System.out.println(ret);
 //         // ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
 //         // System.out.println(ret);
