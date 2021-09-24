@@ -1,7 +1,7 @@
 package io.openmessaging;
 import java.nio.ByteBuffer;
 import java.util.*;
-
+import java.util.concurrent.ConcurrentHashMap;
 import java.nio.channels.FileChannel;
 import java.io.RandomAccessFile;
 import java.io.File;
@@ -9,8 +9,8 @@ import java.io.IOException;
 
 // 线程不安全
 public class iStoragePool {
-    HashMap <String, iMessage> appendMsg = new HashMap<>();
-    HashMap <String, FileChannel> channelMap = new HashMap<>();
+    ConcurrentHashMap <String, iMessage> appendMsg = new ConcurrentHashMap<>();
+    ConcurrentHashMap <String, FileChannel> channelMap = new ConcurrentHashMap<>();
     // private FileChannel channel;
     long pyhsicalOffset = 0;    // 当前写入位置距离StoragePool首地址的绝对偏移
     long currentBarrierOffset = 0;
