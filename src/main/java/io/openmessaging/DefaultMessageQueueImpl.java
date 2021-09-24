@@ -46,8 +46,22 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     @Override
     public Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
         Map<Integer, ByteBuffer> ret = storage.getRange(topic, queueId, offset, fetchNum);
-        // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
+        logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
+        printMap(ret);
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
         return ret;
+    }
+
+    public static void printMap(Map<Integer, ByteBuffer> map) {
+                if (map.isEmpty()) {
+            System.out.println("{ }");
+            return;
+        }
+        System.out.println("{");
+        for (Map.Entry<Integer, ByteBuffer> entry : map.entrySet()) {
+            ByteBuffer buf = entry.getValue();
+            System.out.println("Key = " + entry.getKey() + ", DataSize = " + buf.capacity());
+        }
+        System.out.println("}");
     }
 }
