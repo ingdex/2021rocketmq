@@ -196,7 +196,7 @@
 //         new Random().nextBytes(b);
 //         ByteBuffer buf = ByteBuffer.wrap(b);
 //         // buf.position(536870912);
-//         for (int i=0; i<150000; i++) {
+//         for (int i=0; i<2; i++) {
 //             buf.rewind();
 //             ret = mq.append("a", 1000, buf);
 //         }
