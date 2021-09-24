@@ -4,13 +4,15 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Logger;
+import java.util.concurrent.atomic.AtomicLong;
 /**
  * 这是一个简单的基于内存的实现，以方便选手理解题意；
  * 实际提交时，请维持包名和类名不变，把方法实现修改为自己的内容；
  */
 public class DefaultMessageQueueImpl extends MessageQueue {
     ConcurrentHashMap<String, Map<Integer, Long>> appendOffset = new ConcurrentHashMap<>();
+    private AtomicLong appendId = new AtomicLong(0L);
+
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
     iStorage storage = new iStorage();
     Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
@@ -27,11 +29,13 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     @Override
     public long append(String topic, int queueId, ByteBuffer data){
         // 获取该 topic-queueId 下的最大位点 offset
+        long x = appendId.getAndIncrement();
         Map<Integer, Long> topicOffset = getOrPutDefault(appendOffset, topic, new HashMap<>());
         long offset = topicOffset.getOrDefault(queueId, 0L);
         // 更新最大位点
         topicOffset.put(queueId, offset+1);
-        // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
+        if (x >= 1601900) 
+            logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         storage.append(topic, queueId, offset, data);
         
         // Map<Integer, Map<Long, ByteBuffer>> map1 = getOrPutDefault(appendData, topic, new HashMap<>());
