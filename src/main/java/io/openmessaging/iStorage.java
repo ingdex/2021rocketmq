@@ -65,9 +65,11 @@ public class iStorage {
         for(int i = 0; i < fetchNum; i++){
             String key = topic + String.valueOf(queueId) + String.valueOf(offset + i);
             ByteBuffer buf = pool.get(key);
+            
             if (buf == null) {
                 break;
             }
+            buf.flip();
             ret.put(i, buf);
         }
 

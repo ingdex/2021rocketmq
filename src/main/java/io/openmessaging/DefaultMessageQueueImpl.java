@@ -37,6 +37,10 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         if (queueId == 937 && (topic.equals("topic22"))){
             logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
             logger.debug(data);
+            for(int i=0; i<data.limit()-1; i++) {
+                System.out.print(data.getChar(i));
+            }
+            System.out.print('\n');
         } 
             
         storage.append(topic, queueId, offset, data);
@@ -59,6 +63,10 @@ public class DefaultMessageQueueImpl extends MessageQueue {
             for (Map.Entry<Integer, ByteBuffer> entry : ret.entrySet()) {
                 ByteBuffer buf = entry.getValue();
                 logger.debug("Key = " + entry.getKey() + ", DataSize = \n" + buf);
+                for(int i=0; i<buf.limit()-1; i++) {
+                    System.out.print(buf.getChar(i));
+                }
+                System.out.print('\n');
             }
         }
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
