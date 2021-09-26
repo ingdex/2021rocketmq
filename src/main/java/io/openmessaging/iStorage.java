@@ -134,7 +134,7 @@ public class iStorage {
             if (buf == null) {
                 break;
             }
-            buf.rewind();
+            buf.flip();
             ret.put(i, buf);
         }
 

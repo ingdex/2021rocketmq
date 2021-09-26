@@ -62,7 +62,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
             logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
             for (Map.Entry<Integer, ByteBuffer> entry : ret.entrySet()) {
                 ByteBuffer buf = entry.getValue();
-                logger.debug("Key = " + entry.getKey() + ", DataSize = \n" + buf);
+                logger.debug("Key = " + entry.getKey() + ", DataSize = " + String.valueOf(buf.remaining()) + "\n" + buf);
                 for(int i=0; i<buf.limit()-1; i++) {
                     System.out.print(buf.getChar(i));
                 }
