@@ -79,6 +79,7 @@ public class iStoragePool {
         // Disk layout:
         // || sizeof(key) | key | sizeof(data) | data ||
         int dataOffset = 4 + key.getBytes().length + 4;
+        data.flip();
         int writeBufSize = dataOffset + data.remaining();
         if (pyhsicalOffset + writeBufSize > currentBarrierOffset + FILESIZE) {
             currentBarrierOffset += pyhsicalOffset;
