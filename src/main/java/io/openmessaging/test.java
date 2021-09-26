@@ -184,13 +184,13 @@
 //         // t.genData(fileCount);
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
 //         long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
-//         // System.out.println(ret);
-//         ret = mq.append("topic22", 937, ByteBuffer.wrap("20212".getBytes()));
-//         // System.out.println(ret);
-//         // ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
-//         // System.out.println(ret);
-//         // ret = mq.append("b", 1001, ByteBuffer.wrap("20214".getBytes()));
-//         // System.out.println(ret);
+//         System.out.println(ret);
+//         ret = mq.append("b", 1001, ByteBuffer.wrap("20212".getBytes()));
+//         System.out.println(ret);
+//         ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
+//         System.out.println(ret);
+//         ret = mq.append("b", 1001, ByteBuffer.wrap("20214".getBytes()));
+//         System.out.println(ret);
 
 //         // byte[] b = new byte[17408];
 //         // new Random().nextBytes(b);
