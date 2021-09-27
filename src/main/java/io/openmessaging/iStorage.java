@@ -35,9 +35,10 @@ public class iStorage {
     }
 
     iStorage() {
-        Integer[] fileSizes = {1, 2, 4};
-        Integer[] blockSizes = {1024, 4096};
-        runTests(fileSizes, blockSizes);
+        // disk benchmark
+        // Integer[] fileSizes = {1, 2, 4};
+        // Integer[] blockSizes = {1024, 4096};
+        // runTests(fileSizes, blockSizes);
         String dir = iConfig.dataDir;
         File dirFile = new File(dir);
         File[] files = dirFile.listFiles();
@@ -88,7 +89,7 @@ public class iStorage {
                 AppendRequest request = appendQueue.poll();
                 list.add(request);
             }
-            System.out.println("批量处理:"+size);
+            // System.out.println("批量处理:"+size);
             // List<String> codes = list.stream().map(s->s.code).collect(Collectors.toList());
             //合并之后的结果集
             List<Integer> batchResult = batchAppend(list);
