@@ -17,11 +17,11 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     iStorage storage = new iStorage();
     Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
-    DefaultMessageQueueImpl() {
-        Integer[] fileSizes = {1, 2, 4};
-        Integer[] blockSizes = {1024, 4096};
-        runTests(fileSizes, blockSizes);
-    }
+    // DefaultMessageQueueImpl() {
+    //     Integer[] fileSizes = {1, 2, 4};
+    //     Integer[] blockSizes = {1024, 4096};
+    //     runTests(fileSizes, blockSizes);
+    // }
 
     // getOrPutDefault 若指定key不存在，则插入defaultValue并返回
     private <K, V> V getOrPutDefault(Map<K, V> map, K key, V defaultValue){
