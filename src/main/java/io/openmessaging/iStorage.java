@@ -105,7 +105,7 @@ public class iStorage {
                 
                 request.future.complete(1);
             }
-        },0,10,TimeUnit.MILLISECONDS);
+        },0,1,TimeUnit.MILLISECONDS);
     }
 
     //这个是个模拟批量查询的方法
@@ -167,115 +167,9 @@ public class iStorage {
         if (pool == null) {
             return ret;
         }
-        for(int i = 0; i < fetchNum; i++){
-            String key = topic + String.valueOf(queueId) + String.valueOf(offset + i);
-            ByteBuffer buf = pool.get(key);
-            
-            if (buf == null) {
-                break;
-            }
-            buf.flip();
-            ret.put(i, buf);
-        }
+        ret = pool.getRange(topic, queueId, offset, fetchNum);
 
         return ret;
     }
 
-    private static String resultList = "";
-
-    private static void runTests(Integer[] fileSizes, Integer[] blockSizes) {
-        System.out.println("If you stop the program whilst running you may need to delete a 'DiskBenchFile' file.");
-        System.out.println("Mode - Size - BlockSize - Duration - Speed");
-        for (Integer fileSize : fileSizes) {
-            for (Integer blockSize : blockSizes) {
-                DiskBenchmarker diskBenchmarker = new DiskBenchmarker(fileSize, blockSize);
-
-                long t0 = System.currentTimeMillis();
-                diskBenchmarker.writeTest();
-                long t1 = System.currentTimeMillis();
-                System.out.println(resultPrinter(t0, t1, fileSize, blockSize, "Seq Write"));
-
-                t0 = System.currentTimeMillis();
-                diskBenchmarker.readTest();
-                t1 = System.currentTimeMillis();
-                System.out.println(resultPrinter(t0, t1, fileSize, blockSize, "Seq Read"));
-
-                diskBenchmarker.deleteFile();
-            }
-            
-        }
-        System.out.println("Completed!");
-        System.out.println(resultList);
-    }
-
-    private static String resultPrinter(long t0, long t1, int fileSize, int blockSize, String mode) {
-        double duration = (t1 - t0) / 1000d; // in seconds.
-        double speedInMBs = (1024 * fileSize) / duration;
-        double speedRounded = (double) Math.round(speedInMBs * 1000d) / 1000d;
-        String output = (mode + " - " + fileSize + " GB - " + blockSize + " Bytes - " + duration + " s  - " + speedRounded + " MB/s");
-        resultList += output + "\n";
-        return output;
-    }
 }
-
-// public class Storage {
-
-//     StoragePool pool = new StoragePool("single");
-
-//     // Storage() {
-//     //     String dir = Config.dataDir;
-//     //     File dirFile = new File(dir);
-//     //     File[] files = dirFile.listFiles();
-//     //     for (File file:files) {
-//     //         if (!file.isDirectory()) {
-//     //             String path = file.toString();
-//     //             if(!path.endsWith(".data")) {
-//     //                 System.out.println(path);
-//     //                 continue;
-//     //             }
-//     //             String[] pieces1 = path.split("/", 0);
-//     //             String dataFilename = pieces1[pieces1.length-1];
-//     //             int lastIndex1 = dataFilename.lastIndexOf("_");
-//     //             int lastIndex2 = dataFilename.lastIndexOf(".");
-//     //             if (lastIndex1 == -1 || lastIndex2 == -1) {
-//     //                 System.out.println("err" + path);
-//     //                 continue;
-//     //             }
-//     //             String topic = dataFilename.substring(0, lastIndex1);
-//     //             long offset = Long.valueOf(dataFilename.substring(lastIndex1+1, lastIndex2));
-//     //             StoragePool pool = topicPools.get(topic);
-//     //             if (pool == null) {
-//     //                 topicPools.put(topic, new StoragePool(topic));
-//     //                 pool = topicPools.get(topic);
-//     //             }
-//     //             pool.appendByFile(path, offset);
-//     //         }
-//     //     }
-//     // }
-
-//     public void append(String topic, int queueId, long offset, ByteBuffer data){
-//         String key = topic + String.valueOf(queueId) + String.valueOf(offset);
-//         pool.append(key, data);
-
-//         return;
-//     }
-
-//     public Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
-//         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset" + String.valueOf(offset) + ", fetchNum" + String.valueOf(fetchNum) + " }");
-//         Map<Integer, ByteBuffer> ret = new HashMap<>();
-//         // StoragePool pool = topicPools.get(topic);
-//         // if (pool == null) {
-//         //     return ret;
-//         // }
-//         for(int i = 0; i < fetchNum; i++){
-//             String key = topic + String.valueOf(queueId) + String.valueOf(offset + i);
-//             ByteBuffer buf = pool.get(key);
-//             if (buf == null) {
-//                 break;
-//             }
-//             ret.put(i, buf);
-//         }
-
-//         return ret;
-//     }
-// }

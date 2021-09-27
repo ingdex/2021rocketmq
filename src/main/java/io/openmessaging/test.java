@@ -4,6 +4,7 @@
 // import java.nio.ByteBuffer;
 // import java.nio.channels.Channel;
 // import java.nio.channels.FileChannel;
+// import java.rmi.Remote;
 // import java.io.*;
 // import java.util.*;
 // import java.util.ArrayList;
@@ -54,94 +55,6 @@
 //         return defaultValue;
 //     }
 
-//     // public void genData(int fileCount) {
-//     //     int topicNum = 2;
-//     //     int queueNum = 2;
-//     //     int dataNum = 2;
-//     //     String topic;
-//     //     Integer queueId;
-//     //     Long offset;
-//     //     ByteBuffer data;
-//     //     Random rnd = new Random(System.currentTimeMillis());
-//     //     HashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new HashMap<>();
-//     //     // 创建fileCount个json文件，之后每个线程使用一个文件发送请求
-//     //     try {
-//     //         for (int i=0; i<fileCount; i++) {
-//     //             String path = "data" + String.valueOf(i) + ".json";
-//     //             File file = new File(path);
-//     //             file.createNewFile();
-//     //             // FileWriter fileWriter = new FileWriter(file);
-//     //             FileOutputStream fileOS = new FileOutputStream(path);
-//     //             ObjectOutputStream out = new ObjectOutputStream(fileOS);
-//     //             dataFilePathList.add(path);
-//     //             dataFileList.add(file);
-//     //             dataFileOutputStreamList.add(out);
-//     //             String str = "test";
-//     //             mqRequest mqReq = new mqRequest("a", Integer.valueOf(10), Long.valueOf(0), ByteBuffer.wrap(str.getBytes()));
-//     //             out.writeObject(mqReq);
-//     //             out.flush();
-//     //         }
-//     //     } catch(java.io.IOException e) {
-//     //         System.out.println("can not create file: " + e);
-//     //     }
-        
-//     //     // 生成随机数据，<topic, queueId, data>
-//     //     try {
-//     //         for (int i_topic = 0; i_topic < topicNum; i_topic++) {
-//     //             topic = topics[i_topic];
-//     //             for (int i_queue = 0; i_queue < queueNum; queueNum++) {
-//     //                 queueId = rnd.nextInt(10000) + 1;
-//     //                 for (int i_data = 0; i_data < dataNum; i_data++) {
-//     //                     data = randomByteBuffer(10);
-//     //                     // appendData
-//     //                     Map<Integer, Map<Long, ByteBuffer>> map1 = getOrPutDefault(appendData, topic, new HashMap<>());
-//     //                     Map<Long, ByteBuffer> map2 = getOrPutDefault(map1, queueId, new HashMap<>());
-//     //                     offset = Long.valueOf(i_data);
-//     //                     map2.put(offset, data);
-//     //                     mqRequest mqReq = new mqRequest(topic, queueId, offset, data);
-//     //                     // 随机写入一个文件
-//     //                     ObjectOutputStream out = dataFileOutputStreamList.get(rnd.nextInt(fileCount));
-//     //                     out.writeObject(mqReq);
-//     //                 }
-//     //             }
-//     //         }
-
-//     //     } catch (FileNotFoundException e) {
-//     //         System.out.println("File not found");
-//     //     } catch (IOException e) {
-//     //         System.out.println("Error initializing stream");
-//     //     }
-//     //     // 所有数据以json写入一个dataFile
-//     //     try {
-//     //         String path = "data.json";
-//     //         dataFile = new File(path);
-//     //         dataFile.createNewFile();
-//     //         JSONObject obj = new JSONObject(appendData);
-//     //         // String json = new ObjectMapper().writeValueAsString(appendData);
-//     //         FileWriter fileWriter= new FileWriter(dataFile);
-//     //         fileWriter.write(obj.toString());
-//     //         fileWriter.flush();  
-//     //         fileWriter.close(); 
-//     //     } catch(java.io.IOException e) {
-//     //         System.out.println("can not create file: " + e);
-//     //     }
-        
-//     //     // for (int i_topic=0; i_topic<topicNum; i_topic++) {
-//     //     //     topic = topics[i_topic];
-//     //     //     for (int i_queue = 0; i_queue < queueNum; queueNum++) {
-//     //     //         queueId = rnd.nextInt(10000) + 1;
-//     //     //         for (int i_data = 0; i_data < dataNum; i_data++) {
-//     //     //             data = randomByteBuffer(10);
-//     //     //             // appendData
-//     //     //             Map<Integer, Map<Long, ByteBuffer>> map1 = getOrPutDefault(appendData, topic, new HashMap<>());
-//     //     //             Map<Long, ByteBuffer> map2 = getOrPutDefault(map1, queueId, new HashMap<>());
-//     //     //             offset = Long.valueOf(i_data);
-//     //     //             map2.put(offset, data);
-//     //     //         }
-//     //     //     }
-//     //     // }
-//     // }
-
 //     public void putData() {
 
 //     }
@@ -185,108 +98,337 @@
         
 //         int fileCount = 2;
 //         test t = new test();
-//         // System.out.println("generate mq request");
-//         // t.genData(fileCount);
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
-//         long ret;
-//         // long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
-//         // System.out.println(ret);
-//         // ret = mq.append("b", 1001, ByteBuffer.wrap("20212".getBytes()));
-//         // System.out.println(ret);
-//         // ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
-//         // System.out.println(ret);
-//         // ret = mq.append("b", 1001, ByteBuffer.wrap("20214".getBytes()));
-//         // System.out.println(ret);
-
-//         // byte[] b = new byte[17408];
-//         // new Random().nextBytes(b);
-//         // ByteBuffer buf = ByteBuffer.wrap(b);
-//         // // buf.position(536870912);
-//         // for (int i=0; i<150000; i++) {
-//         //     buf.rewind();
-//         //     ret = mq.append("a", 1000, buf);
-//         // }
-
-//         Map<Integer, ByteBuffer> retMap;
-//         retMap = mq.getRange("a", 1000, 0, 4);
-//         System.out.println("getRange(a, 1000, 0, 4): ");
-//         printMap(retMap, false);
-//         retMap = mq.getRange("b", 1001, 0, 2);
-//         System.out.println("getRange(b, 1001, 0, 2): ");
-//         printMap(retMap, false);
-//         retMap = mq.getRange("b", 1001, 1, 2);
-//         System.out.println("getRange(b, 1001, 1, 2): ");
-//         printMap(retMap, false);
-//         // retMap = mq.;
-//         // System.out.println(" " + retMap);
-        
-//     }
-
-//     void appendThread(String topic, DefaultMessageQueueImpl mq) {
-//         int queueNum = 5000;
-//         int msgNum = 1000;
-//         int dataSize;
-//         String path = "/essd/" + topic;
-//         FileChannel channel;
+//         // t.appendThread("topic1", mq);
+//         // t.getRangeAndCheckThread("topic1", mq);
+//         int topicNum = 3;
+//         ArrayList<Thread> appendThreads = new ArrayList<>();
+//         ArrayList<Thread> getThreads = new ArrayList<>();
+//         for (int i=0; i<topicNum; i++) {
+//             String topic = "topic" + i;
+//             Thread apt = new appendT(topic, mq);
+//             appendThreads.add(apt);
+//             apt.start();
+//         }
 //         try {
-//             RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "rw");
-//             channel = memoryMappedFile.getChannel();
-//         } catch (Exception e) {
+//             for (int i=0; i<topicNum; i++) {
+//                 Thread apt = appendThreads.get(i);
+//                 apt.join();
+//             }
+//             System.out.println("append complete");
+//         } catch (InterruptedException e) {
 //             e.printStackTrace();
-//             return;
 //         }
+//         for (int i=0; i<topicNum; i++) {
+//             String topic = "topic" + i;
+//             Thread apt = new getRangeAndCheckT(topic, mq);
+//             getThreads.add(apt);
+//             apt.start();
+//         }
+//         try {
+//             for (int i=0; i<topicNum; i++) {
+//                 Thread apt = getThreads.get(i);
+//                 apt.join();
+//             }
+//         } catch (InterruptedException e) {
+//             e.printStackTrace();
+//         }
+//         return;
+//     }
+    
+//     // public void appendThread(String topic, DefaultMessageQueueImpl mq) {
+//     //     int queueNum = 200;
+//     //     int msgNum = 1000;
+//     //     int dataSize;
+//     //     String path = "/essd/" + topic;
+//     //     FileChannel channel;
+//     //     try {
+//     //         RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "rw");
+//     //         channel = memoryMappedFile.getChannel();
+//     //     } catch (Exception e) {
+//     //         e.printStackTrace();
+//     //         return;
+//     //     }
         
-//         // 生成随机数据，<topic, queueId, data>
-//         ByteBuffer data;
-//         ArrayList<Integer> queueIdList = new ArrayList<>();
-//         for (int i=0; i<queueNum; i++) {
-//             queueIdList.add(i);
+//     //     // 生成随机数据，<topic, queueId, data>
+//     //     ByteBuffer data;
+//     //     ArrayList<Integer> queueIdList = new ArrayList<>();
+//     //     for (int i=0; i<queueNum; i++) {
+//     //         queueIdList.add(i);
+//     //     }
+//     //     for (int i=0; i<queueNum; i++) {
+//     //         int queueId = queueIdList.get(i);
+//     //         for (int j=0; j<msgNum; j++) {
+//     //             // dataSize = ThreadLocalRandom.current().nextInt(100, 17000);
+//     //             dataSize = 10240;
+//     //             data = ByteBuffer.allocate(dataSize);
+//     //             long offset = mq.append(topic, queueId, data);
+//     //             if (offset != j) {
+//     //                 System.out.println("err");
+//     //                 return;
+//     //             }
+//     //             data.flip();
+//     //             try {
+//     //                 ByteBuffer buf = ByteBuffer.allocate(16);
+//     //                 buf.putInt(queueId);
+//     //                 buf.putInt(data.remaining());
+//     //                 buf.putLong(offset);
+//     //                 buf.flip();
+//     //                 channel.write(buf);
+//     //                 channel.write(data);
+//     //             } catch (IOException e) {
+//     //                 e.printStackTrace();
+//     //             }
+//     //         }
+//     //     }
+//     // }
+
+
+//     // class FileMessage {
+//     //     String topic;
+//     //     int queueId;
+//     //     long offset;
+//     //     int dataSize;
+//     //     ByteBuffer data;
+        
+//     // }
+
+//     // public FileMessage getMsg(String topic, FileChannel channel) {
+            
+//     //     FileMessage msg = new FileMessage();
+//     //     try {
+//     //         ByteBuffer buf = ByteBuffer.allocate(8);
+//     //         int ret = channel.read(buf);
+//     //         if (ret == -1) {
+//     //             return null;
+//     //         }
+//     //         msg.topic = topic;
+//     //         msg.queueId = buf.getInt();
+//     //         msg.dataSize = buf.getInt();
+//     //         msg.offset = buf.getLong();
+//     //         msg.data = ByteBuffer.allocate(msg.dataSize);
+//     //         channel.read(msg.data);
+//     //         return msg;
+//     //     } catch (Exception e) {
+//     //         e.printStackTrace();
+//     //     }
+        
+//     //     return null;
+//     // }
+
+//     // void getRangeAndCheckThread(String topic, DefaultMessageQueueImpl mq) {
+//     //     String path = "/essd/" + topic;
+//     //     FileChannel channel;
+//     //     long currentOffset = 0;
+//     //     int fetchNum = 4;
+//     //     try {
+//     //         RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "r");
+//     //         channel = memoryMappedFile.getChannel();
+//     //     } catch (Exception e) {
+//     //         e.printStackTrace();
+//     //         return;
+//     //     }
+//     //     try {
+//     //         while(true) {
+//     //             ArrayList<FileMessage> msgList = new ArrayList<>();
+//     //             for (int i=0; i<fetchNum; i++) {
+//     //                 FileMessage msg = getMsg(topic, channel);
+//     //                 if (msg == null) {
+//     //                     break;
+//     //                 }
+//     //                 currentOffset++;
+//     //             }
+//     //             if (msgList.size() == 0) {
+//     //                 System.out.println("check complete " + topic);
+//     //                 return;
+//     //             }
+//     //             FileMessage msg = msgList.get(0);
+//     //             Map<Integer, ByteBuffer> retMap = mq.getRange(msg.topic, msg.queueId, msg.offset, msgList.size());
+//     //             if (retMap.size() != msgList.size()) {
+//     //                 System.out.println("size err");
+//     //             }
+//     //             for (int i=0; i<retMap.size(); i++) {
+//     //                 FileMessage msg1 = msgList.get(i);
+//     //                 ByteBuffer data = retMap.get(i);
+//     //                 if (!msg1.data.equals(data)) {
+//     //                     System.out.println("data err");
+//     //                 }
+//     //             }
+//     //         }
+//     //     } catch (Exception e) {
+//     //         e.printStackTrace();
+//     //     }
+//     // }
+
+//     static class appendT extends Thread {
+//         String topic;
+//         DefaultMessageQueueImpl mq;
+
+//         class FileMessage {
+//             String topic;
+//             int queueId;
+//             long offset;
+//             int dataSize;
+//             ByteBuffer data;
+            
 //         }
-//         for (int i=0; i<queueNum; i++) {
-//             int queueId = queueIdList.get(i);
-//             for (int j=0; j<msgNum; j++) {
-//                 dataSize = ThreadLocalRandom.current().nextInt(100, 17000);
-//                 data = randomByteBuffer(dataSize);
-//                 long offset = mq.append(topic, queueId, data);
-//                 if (offset != msgNum) {
-//                     System.out.println("err");
-//                     return;
-//                 }
-//                 data.flip();
-//                 try {
-//                     ByteBuffer buf = ByteBuffer.allocate(8);
-//                     buf.putInt(queueId);
-//                     buf.putInt(data.remaining());
-//                     channel.write(buf);
-//                     channel.write(data);
-//                 } catch (IOException e) {
-//                     e.printStackTrace();
+
+//         appendT(String topic, DefaultMessageQueueImpl mq) {
+//             this.topic = topic;
+//             this.mq = mq;
+//         }
+
+//         public void append(String topic, DefaultMessageQueueImpl mq) {
+//             int queueNum = 2;
+//             int msgNum = 10;
+//             int dataSize = ThreadLocalRandom.current().nextInt(100, 17000);
+//             String path = "/essd/" + topic;
+//             FileChannel channel;
+//             try {
+//                 RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "rw");
+//                 channel = memoryMappedFile.getChannel();
+//             } catch (Exception e) {
+//                 e.printStackTrace();
+//                 return;
+//             }
+            
+//             // 生成随机数据，<topic, queueId, data>
+//             ByteBuffer data;
+//             ArrayList<Integer> queueIdList = new ArrayList<>();
+//             for (int i=0; i<queueNum; i++) {
+//                 queueIdList.add(i);
+//             }
+//             for (int i=0; i<queueNum; i++) {
+//                 int queueId = queueIdList.get(i);
+//                 for (int j=0; j<msgNum; j++) {
+//                     // dataSize++;
+//                     dataSize = 10240;
+//                     data = ByteBuffer.allocate(dataSize);
+//                     long offset = mq.append(topic, queueId, data);
+//                     if (offset != j) {
+//                         System.out.println("err");
+//                         return;
+//                     }
+//                     data.flip();
+//                     try {
+//                         ByteBuffer buf = ByteBuffer.allocate(16);
+//                         buf.putInt(queueId);
+//                         buf.putInt(data.remaining());
+//                         buf.putLong(offset);
+//                         buf.flip();
+//                         channel.write(buf);
+//                         channel.write(data);
+//                     } catch (IOException e) {
+//                         e.printStackTrace();
+//                     }
 //                 }
 //             }
 //         }
+
+//         @Override
+//         public void run() {
+//             System.out.println("start append thread" + Thread.currentThread().getName());
+//             append(topic, mq);
+//         }
 //     }
 
-//     void getRangeAndCheckThread(String topic, DefaultMessageQueueImpl mq) {
-//         int queueNum = 5000;
-//         int msgNum = 1000;
-//         int dataSize;
-//         String path = "/essd/" + topic;
+
+//     static class getRangeAndCheckT extends Thread {
+//         String path;
+//         String topic;
 //         FileChannel channel;
-//         try {
-//             RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "r");
-//             channel = memoryMappedFile.getChannel();
-//         } catch (Exception e) {
-//             e.printStackTrace();
-//             return;
+//         long currentOffset = 0;
+//         int fetchNum = 4;
+//         DefaultMessageQueueImpl mq;
+//         class FileMessage {
+//             String topic;
+//             int queueId;
+//             long offset;
+//             int dataSize;
+//             ByteBuffer data;
+            
 //         }
-//         try {
-//             while(true) {
-//                 ByteBuffer buf = ByteBuffer.allocate(4);
-//                 channel.read(buf);
-                
+
+//         getRangeAndCheckT(String topic, DefaultMessageQueueImpl mq) {
+//             this.path = "/essd/" + topic;
+//             this.topic = topic;
+//             this.mq = mq;
+//         }
+
+//         public FileMessage getMsg(String topic, FileChannel channel) {
+            
+//             FileMessage msg = new FileMessage();
+//             try {
+//                 ByteBuffer buf = ByteBuffer.allocate(8);
+//                 int ret = channel.read(buf);
+//                 if (ret == -1) {
+//                     return null;
+//                 }
+//                 msg.topic = topic;
+//                 msg.queueId = buf.getInt();
+//                 msg.dataSize = buf.getInt();
+//                 msg.offset = buf.getLong();
+//                 msg.data = ByteBuffer.allocate(msg.dataSize);
+//                 channel.read(msg.data);
+//                 return msg;
+//             } catch (Exception e) {
+//                 e.printStackTrace();
 //             }
-//         } catch (Exception e) {
-//             e.printStackTrace();
+            
+//             return null;
+//         }
+
+//         void getRangeAndCheck(String topic, DefaultMessageQueueImpl mq) {
+//             this.topic = topic;
+//             String path = "/essd/" + topic;
+//             FileChannel channel;
+//             long currentOffset = 0;
+//             int fetchNum = 4;
+//             try {
+//                 RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "r");
+//                 channel = memoryMappedFile.getChannel();
+//             } catch (Exception e) {
+//                 e.printStackTrace();
+//                 return;
+//             }
+//             try {
+//                 while(true) {
+//                     ArrayList<FileMessage> msgList = new ArrayList<>();
+//                     for (int i=0; i<fetchNum; i++) {
+//                         FileMessage msg = getMsg(topic, channel);
+//                         if (msg == null) {
+//                             break;
+//                         }
+//                         currentOffset++;
+//                     }
+//                     if (msgList.size() == 0) {
+//                         System.out.println("check complete" + topic);
+//                         return;
+//                     }
+//                     FileMessage msg = msgList.get(0);
+//                     Map<Integer, ByteBuffer> retMap = mq.getRange(msg.topic, msg.queueId, msg.offset, msgList.size());
+//                     if (retMap.size() != msgList.size()) {
+//                         System.out.println("size err");
+//                     }
+//                     for (int i=0; i<retMap.size(); i++) {
+//                         FileMessage msg1 = msgList.get(i);
+//                         ByteBuffer data = retMap.get(i);
+//                         if (!msg1.data.equals(data)) {
+//                             System.out.println("data err");
+//                         }
+//                     }
+//                 }
+//             } catch (Exception e) {
+//                 e.printStackTrace();
+//             }
+//         }
+
+//         @Override
+//         public void run() {
+//             System.out.println("start getRange and check thread" + Thread.currentThread().getName());
+//             getRangeAndCheck(topic, mq);
 //         }
 //     }
+
+    
 // }
