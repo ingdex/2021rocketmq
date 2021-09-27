@@ -41,6 +41,15 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         long offset = topicOffset.getOrDefault(queueId, 0L);
         // 更新最大位点
         topicOffset.put(queueId, offset+1);
+        if (queueId == 1527 && (topic.equals("topic31"))){
+            logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
+            logger.debug(data);
+            for(int i=0; i<data.limit()-1; i++) {
+                System.out.print(data.getChar(i));
+            }
+            System.out.print('\n');
+        } 
+        // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         storage.append(topic, queueId, offset, data);
         
@@ -56,6 +65,17 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     @Override
     public Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
         Map<Integer, ByteBuffer> ret = storage.getRange(topic, queueId, offset, fetchNum);
+        if (queueId == 1527 && topic.equals("topic31")) {
+            logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
+            for (Map.Entry<Integer, ByteBuffer> entry : ret.entrySet()) {
+                ByteBuffer buf = entry.getValue();
+                logger.debug("Key = " + entry.getKey() + ", DataSize = " + String.valueOf(buf.remaining()) + "\n" + buf);
+                for(int i=0; i<buf.limit()-1; i++) {
+                    System.out.print(buf.getChar(i));
+                }
+                System.out.print('\n');
+            }
+        }
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
         return ret;
     }
@@ -74,39 +94,5 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     }
 
 
-    private static String resultList = "";
-
-    private static void runTests(Integer[] fileSizes, Integer[] blockSizes) {
-        System.out.println("If you stop the program whilst running you may need to delete a 'DiskBenchFile' file.");
-        System.out.println("Mode - Size - BlockSize - Duration - Speed");
-        for (Integer fileSize : fileSizes) {
-            for (Integer blockSize : blockSizes) {
-                DiskBenchmarker diskBenchmarker = new DiskBenchmarker(fileSize, blockSize);
-
-                long t0 = System.currentTimeMillis();
-                diskBenchmarker.writeTest();
-                long t1 = System.currentTimeMillis();
-                System.out.println(resultPrinter(t0, t1, fileSize, blockSize, "Seq Write"));
-
-                t0 = System.currentTimeMillis();
-                diskBenchmarker.readTest();
-                t1 = System.currentTimeMillis();
-                System.out.println(resultPrinter(t0, t1, fileSize, blockSize, "Seq Read"));
-
-                diskBenchmarker.deleteFile();
-            }
-            
-        }
-        System.out.println("Completed!");
-        System.out.println(resultList);
-    }
-
-    private static String resultPrinter(long t0, long t1, int fileSize, int blockSize, String mode) {
-        double duration = (t1 - t0) / 1000d; // in seconds.
-        double speedInMBs = (1024 * fileSize) / duration;
-        double speedRounded = (double) Math.round(speedInMBs * 1000d) / 1000d;
-        String output = (mode + " - " + fileSize + " GB - " + blockSize + " Bytes - " + duration + " s  - " + speedRounded + " MB/s");
-        resultList += output + "\n";
-        return output;
-    }
+    
 }
