@@ -244,7 +244,7 @@ public class iStoragePool {
         Map<Integer, ByteBuffer> ret = new HashMap<>();
         FileChannel channel = getFileChannel(topic);
         for(int i = 0; i < fetchNum; i++){
-            String key = topic + String.valueOf(queueId) + String.valueOf(offset + i);
+            String key = topic + "_" + String.valueOf(queueId) + "_" + String.valueOf(offset + i);
             iMessage msg = appendMsg.get(key);
             if (msg == null) {
                 break;
