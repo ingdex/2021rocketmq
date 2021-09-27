@@ -227,6 +227,7 @@ public class iStoragePool {
             return ret;
         }
         FileChannel channel = getFileChannel(msg.fielname);
+        System.out.println(msg.fielname);
         try {
             // channel.position(msg.offset);
             ret = ByteBuffer.allocate(msg.size);
@@ -245,7 +246,7 @@ public class iStoragePool {
         for(int i = 0; i < fetchNum; i++){
             String key = topic + String.valueOf(queueId) + String.valueOf(offset + i);
             iMessage msg = appendMsg.get(key);
-            if (key == null) {
+            if (msg == null) {
                 break;
             }
             ByteBuffer buf = ByteBuffer.allocate(msg.size);

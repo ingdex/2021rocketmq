@@ -2,19 +2,24 @@
 // import java.lang.String;
 // import java.lang.System.Logger;
 // import java.nio.ByteBuffer;
+// import java.nio.channels.Channel;
+// import java.nio.channels.FileChannel;
 // import java.io.*;
 // import java.util.*;
 // import java.util.ArrayList;
 // import java.util.HashMap;
 // import java.util.List;
 // import java.util.HashMap;
+// import java.util.concurrent.ThreadLocalRandom;
 
 // // import org.apache.commons.beanutils.converters.IntegerConverter;
 // import java.io.FileOutputStream;
 // import java.io.IOException;
 // import java.io.ObjectInputStream;
 // import java.io.ObjectOutputStream;
-// import java.nio.charset.StandardCharsets;
+// import java.io.RandomAccessFile;
+// import java.io.File;
+// import java.io.IOException;
 
 // public class test {
 //     List<File> dataFileList = new ArrayList<>();
@@ -215,5 +220,73 @@
 //         // retMap = mq.;
 //         // System.out.println(" " + retMap);
         
+//     }
+
+//     void appendThread(String topic, DefaultMessageQueueImpl mq) {
+//         int queueNum = 5000;
+//         int msgNum = 1000;
+//         int dataSize;
+//         String path = "/essd/" + topic;
+//         FileChannel channel;
+//         try {
+//             RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "rw");
+//             channel = memoryMappedFile.getChannel();
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//             return;
+//         }
+        
+//         // 生成随机数据，<topic, queueId, data>
+//         ByteBuffer data;
+//         ArrayList<Integer> queueIdList = new ArrayList<>();
+//         for (int i=0; i<queueNum; i++) {
+//             queueIdList.add(i);
+//         }
+//         for (int i=0; i<queueNum; i++) {
+//             int queueId = queueIdList.get(i);
+//             for (int j=0; j<msgNum; j++) {
+//                 dataSize = ThreadLocalRandom.current().nextInt(100, 17000);
+//                 data = randomByteBuffer(dataSize);
+//                 long offset = mq.append(topic, queueId, data);
+//                 if (offset != msgNum) {
+//                     System.out.println("err");
+//                     return;
+//                 }
+//                 data.flip();
+//                 try {
+//                     ByteBuffer buf = ByteBuffer.allocate(8);
+//                     buf.putInt(queueId);
+//                     buf.putInt(data.remaining());
+//                     channel.write(buf);
+//                     channel.write(data);
+//                 } catch (IOException e) {
+//                     e.printStackTrace();
+//                 }
+//             }
+//         }
+//     }
+
+//     void getRangeAndCheckThread(String topic, DefaultMessageQueueImpl mq) {
+//         int queueNum = 5000;
+//         int msgNum = 1000;
+//         int dataSize;
+//         String path = "/essd/" + topic;
+//         FileChannel channel;
+//         try {
+//             RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "r");
+//             channel = memoryMappedFile.getChannel();
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//             return;
+//         }
+//         try {
+//             while(true) {
+//                 ByteBuffer buf = ByteBuffer.allocate(4);
+//                 channel.read(buf);
+                
+//             }
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//         }
 //     }
 // }
