@@ -219,7 +219,7 @@ public class iStoragePool {
         return;
     }
 
-    public ByteBuffer get(String key) {
+    public synchronized ByteBuffer get(String key) {
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset" + String.valueOf(offset) + ", fetchNum" + String.valueOf(fetchNum) + " }");
         ByteBuffer ret = null;
         iMessage msg = appendMsg.get(key);
@@ -238,10 +238,30 @@ public class iStoragePool {
         return ret;
     }
 
-    public Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
+    public synchronized Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset" + String.valueOf(offset) + ", fetchNum" + String.valueOf(fetchNum) + " }");
         Map<Integer, ByteBuffer> ret = new HashMap<>();
-        
+        FileChannel channel = getFileChannel(topic);
+        for(int i = 0; i < fetchNum; i++){
+            String key = topic + String.valueOf(queueId) + String.valueOf(offset + i);
+            iMessage msg = appendMsg.get(key);
+            if (key == null) {
+                break;
+            }
+            ByteBuffer buf = ByteBuffer.allocate(msg.size);
+            int dataOffset = (int)(msg.offset - msg.currentBarrierOffset);
+            try {
+                channel.read(buf, dataOffset);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (buf == null) {
+                break;
+            }
+            buf.flip();
+            ret.put(i, buf);
+        }
+
         return ret;
     }
 }
