@@ -135,130 +135,6 @@
 //         }
 //         return;
 //     }
-    
-//     // public void appendThread(String topic, DefaultMessageQueueImpl mq) {
-//     //     int queueNum = 200;
-//     //     int msgNum = 1000;
-//     //     int dataSize;
-//     //     String path = "/essd/" + topic;
-//     //     FileChannel channel;
-//     //     try {
-//     //         RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "rw");
-//     //         channel = memoryMappedFile.getChannel();
-//     //     } catch (Exception e) {
-//     //         e.printStackTrace();
-//     //         return;
-//     //     }
-        
-//     //     // 生成随机数据，<topic, queueId, data>
-//     //     ByteBuffer data;
-//     //     ArrayList<Integer> queueIdList = new ArrayList<>();
-//     //     for (int i=0; i<queueNum; i++) {
-//     //         queueIdList.add(i);
-//     //     }
-//     //     for (int i=0; i<queueNum; i++) {
-//     //         int queueId = queueIdList.get(i);
-//     //         for (int j=0; j<msgNum; j++) {
-//     //             // dataSize = ThreadLocalRandom.current().nextInt(100, 17000);
-//     //             dataSize = 10240;
-//     //             data = ByteBuffer.allocate(dataSize);
-//     //             long offset = mq.append(topic, queueId, data);
-//     //             if (offset != j) {
-//     //                 System.out.println("err");
-//     //                 return;
-//     //             }
-//     //             data.flip();
-//     //             try {
-//     //                 ByteBuffer buf = ByteBuffer.allocate(16);
-//     //                 buf.putInt(queueId);
-//     //                 buf.putInt(data.remaining());
-//     //                 buf.putLong(offset);
-//     //                 buf.flip();
-//     //                 channel.write(buf);
-//     //                 channel.write(data);
-//     //             } catch (IOException e) {
-//     //                 e.printStackTrace();
-//     //             }
-//     //         }
-//     //     }
-//     // }
-
-
-//     // class FileMessage {
-//     //     String topic;
-//     //     int queueId;
-//     //     long offset;
-//     //     int dataSize;
-//     //     ByteBuffer data;
-        
-//     // }
-
-//     // public FileMessage getMsg(String topic, FileChannel channel) {
-            
-//     //     FileMessage msg = new FileMessage();
-//     //     try {
-//     //         ByteBuffer buf = ByteBuffer.allocate(8);
-//     //         int ret = channel.read(buf);
-//     //         if (ret == -1) {
-//     //             return null;
-//     //         }
-//     //         msg.topic = topic;
-//     //         msg.queueId = buf.getInt();
-//     //         msg.dataSize = buf.getInt();
-//     //         msg.offset = buf.getLong();
-//     //         msg.data = ByteBuffer.allocate(msg.dataSize);
-//     //         channel.read(msg.data);
-//     //         return msg;
-//     //     } catch (Exception e) {
-//     //         e.printStackTrace();
-//     //     }
-        
-//     //     return null;
-//     // }
-
-//     // void getRangeAndCheckThread(String topic, DefaultMessageQueueImpl mq) {
-//     //     String path = "/essd/" + topic;
-//     //     FileChannel channel;
-//     //     long currentOffset = 0;
-//     //     int fetchNum = 4;
-//     //     try {
-//     //         RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "r");
-//     //         channel = memoryMappedFile.getChannel();
-//     //     } catch (Exception e) {
-//     //         e.printStackTrace();
-//     //         return;
-//     //     }
-//     //     try {
-//     //         while(true) {
-//     //             ArrayList<FileMessage> msgList = new ArrayList<>();
-//     //             for (int i=0; i<fetchNum; i++) {
-//     //                 FileMessage msg = getMsg(topic, channel);
-//     //                 if (msg == null) {
-//     //                     break;
-//     //                 }
-//     //                 currentOffset++;
-//     //             }
-//     //             if (msgList.size() == 0) {
-//     //                 System.out.println("check complete " + topic);
-//     //                 return;
-//     //             }
-//     //             FileMessage msg = msgList.get(0);
-//     //             Map<Integer, ByteBuffer> retMap = mq.getRange(msg.topic, msg.queueId, msg.offset, msgList.size());
-//     //             if (retMap.size() != msgList.size()) {
-//     //                 System.out.println("size err");
-//     //             }
-//     //             for (int i=0; i<retMap.size(); i++) {
-//     //                 FileMessage msg1 = msgList.get(i);
-//     //                 ByteBuffer data = retMap.get(i);
-//     //                 if (!msg1.data.equals(data)) {
-//     //                     System.out.println("data err");
-//     //                 }
-//     //             }
-//     //         }
-//     //     } catch (Exception e) {
-//     //         e.printStackTrace();
-//     //     }
-//     // }
 
 //     static class appendT extends Thread {
 //         String topic;
@@ -279,8 +155,8 @@
 //         }
 
 //         public void append(String topic, DefaultMessageQueueImpl mq) {
-//             int queueNum = 2;
-//             int msgNum = 10;
+//             int queueNum = 200;
+//             int msgNum = 1000;
 //             int dataSize = ThreadLocalRandom.current().nextInt(100, 17000);
 //             String path = "/essd/" + topic;
 //             FileChannel channel;
@@ -359,12 +235,13 @@
             
 //             FileMessage msg = new FileMessage();
 //             try {
-//                 ByteBuffer buf = ByteBuffer.allocate(8);
+//                 ByteBuffer buf = ByteBuffer.allocate(16);
 //                 int ret = channel.read(buf);
-//                 if (ret == -1) {
+//                 if (ret == -1 || ret == 0) {
 //                     return null;
 //                 }
 //                 msg.topic = topic;
+//                 buf.flip();
 //                 msg.queueId = buf.getInt();
 //                 msg.dataSize = buf.getInt();
 //                 msg.offset = buf.getLong();

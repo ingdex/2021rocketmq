@@ -119,7 +119,7 @@ public class iStorage {
         ArrayList<ByteBuffer> dataList = new ArrayList<>();
         for (AppendRequest request : requestList) {
             // iStoragePool pool = getStoragePoolByTopic(request.topic);
-            String key = request.topic + String.valueOf(request.queueId) + String.valueOf(request.offset);
+            String key = request.topic + "_" + String.valueOf(request.queueId) + "_" + String.valueOf(request.offset);
             // pool.append(key, request.data);
             keyList.add(key);
             dataList.add(request.data);
