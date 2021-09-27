@@ -16,6 +16,13 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
     iStorage storage = new iStorage();
     Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
+
+    DefaultMessageQueueImpl() {
+        Integer[] fileSizes = {1, 2, 4};
+        Integer[] blockSizes = {1024, 4096};
+        runTests(fileSizes, blockSizes);
+    }
+
     // getOrPutDefault 若指定key不存在，则插入defaultValue并返回
     private <K, V> V getOrPutDefault(Map<K, V> map, K key, V defaultValue){
         V retObj = map.get(key);
@@ -64,5 +71,42 @@ public class DefaultMessageQueueImpl extends MessageQueue {
             System.out.println("Key = " + entry.getKey() + ", DataSize = " + buf.capacity());
         }
         System.out.println("}");
+    }
+
+
+    private static String resultList = "";
+
+    private static void runTests(Integer[] fileSizes, Integer[] blockSizes) {
+        System.out.println("If you stop the program whilst running you may need to delete a 'DiskBenchFile' file.");
+        System.out.println("Mode - Size - BlockSize - Duration - Speed");
+        for (Integer fileSize : fileSizes) {
+            for (Integer blockSize : blockSizes) {
+                DiskBenchmarker diskBenchmarker = new DiskBenchmarker(fileSize, blockSize);
+
+                long t0 = System.currentTimeMillis();
+                diskBenchmarker.writeTest();
+                long t1 = System.currentTimeMillis();
+                System.out.println(resultPrinter(t0, t1, fileSize, blockSize, "Seq Write"));
+
+                t0 = System.currentTimeMillis();
+                diskBenchmarker.readTest();
+                t1 = System.currentTimeMillis();
+                System.out.println(resultPrinter(t0, t1, fileSize, blockSize, "Seq Read"));
+
+                diskBenchmarker.deleteFile();
+            }
+            
+        }
+        System.out.println("Completed!");
+        System.out.println(resultList);
+    }
+
+    private static String resultPrinter(long t0, long t1, int fileSize, int blockSize, String mode) {
+        double duration = (t1 - t0) / 1000d; // in seconds.
+        double speedInMBs = (1024 * fileSize) / duration;
+        double speedRounded = (double) Math.round(speedInMBs * 1000d) / 1000d;
+        String output = (mode + " - " + fileSize + " GB - " + blockSize + " Bytes - " + duration + " s  - " + speedRounded + " MB/s");
+        resultList += output + "\n";
+        return output;
     }
 }

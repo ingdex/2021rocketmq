@@ -71,6 +71,7 @@ public class iStorage {
     }
 
     public void init(){
+        System.out.println("init backend thread");
     //在init方法中初始化一个定时任务线程，去定时执行我们的查询任务.具体的任务实现是我们根据唯一code查询出来的结果集，以code为key转成map，然后我们队列中的每个Request对象都有自己的唯一code，我们根据code一一对应，给相应的future返回对应的查询结果。
         ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
         poolExecutor.scheduleAtFixedRate(()->{
@@ -99,7 +100,7 @@ public class iStorage {
                 
                 request.future.complete(1);
             }
-        },0,1,TimeUnit.MILLISECONDS);
+        },0,10,TimeUnit.MILLISECONDS);
     }
 
     //这个是个模拟批量查询的方法
