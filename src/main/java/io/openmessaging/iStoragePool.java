@@ -75,6 +75,7 @@ public class iStoragePool {
         return ret;
     }
 
+    // 线程不安全
     public long append(String key, ByteBuffer data){
         // Disk layout:
         // || sizeof(key) | key | sizeof(data) | data ||
@@ -82,8 +83,8 @@ public class iStoragePool {
         data.flip();
         int writeBufSize = dataOffset + data.remaining();
         if (pyhsicalOffset + writeBufSize > currentBarrierOffset + FILESIZE) {
-            currentBarrierOffset += pyhsicalOffset;
-            pyhsicalOffset = currentBarrierOffset;
+            currentBarrierOffset = pyhsicalOffset;
+            // pyhsicalOffset = currentBarrierOffset;
             // channel = null;
         }
         String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
@@ -114,6 +115,108 @@ public class iStoragePool {
         }
         
         return dataPhysicalOffset;
+    }
+
+    public void append(ArrayList<String> keyList, ArrayList<ByteBuffer> dataList){
+        int num = keyList.size();
+        int writeBufSize = 0;
+        ByteBuffer writeBuf;
+        ArrayList<Integer> writeBufLenList = new ArrayList<>();
+        ArrayList<Integer> requestNumList = new ArrayList<>();
+        ArrayList<FileChannel> channelList = new ArrayList<>();
+        ArrayList<Long> relativeWritePositionList = new ArrayList<>();
+        int fileNum = 0;
+        int requestNum = 0;
+        long dataPhysicalOffset = pyhsicalOffset;
+        // may overflow
+        for (int i=0; i<num; i++) {
+            String key = keyList.get(i);
+            ByteBuffer data = dataList.get(i);
+            // Disk layout:
+            // || sizeof(key) | key | sizeof(data) | data ||
+            int preWriteBufSize = writeBufSize;
+            writeBufSize += 4 + key.getBytes().length + 4 + data.remaining();
+            // 当前文件空间不足
+            if (pyhsicalOffset + writeBufSize > currentBarrierOffset + FILESIZE) {
+                if (preWriteBufSize == 0) {
+                    requestNum = 1;
+                    currentBarrierOffset = pyhsicalOffset;
+                    pyhsicalOffset += writeBufSize;
+                    dataPhysicalOffset = pyhsicalOffset - data.remaining();
+                    String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
+                    iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), filename);
+                    appendMsg.put(key, msg);
+                    continue;
+                }
+                writeBufLenList.add(preWriteBufSize);
+                requestNumList.add(requestNum);
+                fileNum++;
+                requestNum = 1;
+                writeBufSize -= preWriteBufSize;
+                String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
+                FileChannel channel = getFileChannel(filename);
+                channelList.add(channel);
+                currentBarrierOffset = pyhsicalOffset;
+                pyhsicalOffset += writeBufSize;
+                dataPhysicalOffset = pyhsicalOffset - data.remaining();
+                long relativeWritePos = 0;
+                relativeWritePositionList.add(relativeWritePos);
+                // long dataPhysicalOffset = 
+                iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), filename);
+                appendMsg.put(key, msg);
+                continue;
+            }
+            requestNum++;
+            pyhsicalOffset += writeBufSize;
+            dataPhysicalOffset = pyhsicalOffset - data.remaining();
+            String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
+            iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), filename);
+            appendMsg.put(key, msg);
+        }
+        if (requestNum != 0) {
+            writeBufLenList.add(writeBufSize);
+            requestNumList.add(requestNum);
+            String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
+            FileChannel channel = getFileChannel(filename);
+            channelList.add(channel);
+            long relativeWritePos = pyhsicalOffset - writeBufSize - currentBarrierOffset;
+            relativeWritePositionList.add(relativeWritePos);
+            fileNum++;
+        }
+        int currentRequestPos = 0;
+        for (int i=0; i<fileNum; i++) {
+            int writeBufLenBatch = writeBufLenList.get(i);
+            int requestNumBatch = requestNumList.get(i);
+            writeBuf = ByteBuffer.allocate(writeBufLenBatch);
+            for (int j=0; j<requestNumBatch; j++) {
+                String key = keyList.get(currentRequestPos);
+                ByteBuffer data = dataList.get(currentRequestPos);
+                currentRequestPos++;
+                writeBuf.putInt(key.length());
+                writeBuf.put(key.getBytes());
+                writeBuf.putInt(data.remaining());
+                writeBuf.put(data);
+            }
+            writeBuf.flip();
+            FileChannel channel = channelList.get(i);
+            long relativeWritePos = relativeWritePositionList.get(i);
+            try {
+                channel.write(writeBuf, relativeWritePos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        // force to ssd
+        for (int i=0; i<fileNum; i++) {
+            FileChannel channel = channelList.get(i);
+            try {
+                channel.force(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return;
     }
 
     public ByteBuffer get(String key) {

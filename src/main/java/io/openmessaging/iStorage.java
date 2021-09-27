@@ -4,6 +4,9 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+
+import javax.sound.midi.VoiceStatus;
+
 import java.util.concurrent.*;
 import org.apache.log4j.Logger;
 
@@ -17,7 +20,14 @@ public class iStorage {
         String topic;
         int queueId;
         ByteBuffer data;
+        long offset;
         CompletableFuture<Integer> future;
+        AppendRequest(String topic, int queueId, long offset, ByteBuffer data) {
+            this.topic = topic;
+            this.queueId = queueId;
+            this.data = data;
+            this.offset = offset;
+        }
     }
 
     class GetRequest {
@@ -53,6 +63,7 @@ public class iStorage {
                 pool.appendByFile(path, offset);
             }
         }
+        init();
     }
 
     iStoragePool getStoragePoolByPoolName(String poolName) {
@@ -72,7 +83,7 @@ public class iStorage {
                 AppendRequest request = appendQueue.poll();
                 list.add(request);
             }
-            System.out.println("批量处理:"+size);
+            // System.out.println("批量处理:"+size);
             // List<String> codes = list.stream().map(s->s.code).collect(Collectors.toList());
             //合并之后的结果集
             List<Integer> batchResult = batchAppend(list);
@@ -85,9 +96,10 @@ public class iStorage {
             //返回对应的请求结果
             for (AppendRequest request : list) {
                 // Map<String, Object> response = responseMap.get(request.code);
+                
                 request.future.complete(1);
             }
-        },0,10,TimeUnit.MILLISECONDS);
+        },0,1,TimeUnit.MILLISECONDS);
     }
 
     //这个是个模拟批量查询的方法
@@ -97,6 +109,17 @@ public class iStorage {
     }
 
     public List<Integer> batchAppend(List<AppendRequest> requestList){
+        ArrayList<String> keyList = new ArrayList<>();
+        ArrayList<ByteBuffer> dataList = new ArrayList<>();
+        for (AppendRequest request : requestList) {
+            // iStoragePool pool = getStoragePoolByTopic(request.topic);
+            String key = request.topic + String.valueOf(request.queueId) + String.valueOf(request.offset);
+            // pool.append(key, request.data);
+            keyList.add(key);
+            dataList.add(request.data);
+        }
+        iStoragePool pool = getStoragePoolByTopic("request.topic");
+        pool.append(keyList, dataList);
         return null;
     }
     
@@ -113,10 +136,21 @@ public class iStorage {
     }
 
     public void append(String topic, int queueId, long offset, ByteBuffer data){
-        iStoragePool pool = getStoragePoolByTopic(topic);
-        String key = topic + String.valueOf(queueId) + String.valueOf(offset);
-        pool.append(key, data);
-
+        // iStoragePool pool = getStoragePoolByTopic(topic);
+        // String key = topic + String.valueOf(queueId) + String.valueOf(offset);
+        // pool.append(key, data);  
+        AppendRequest appendRequest = new AppendRequest(topic, queueId, offset, data);
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        appendRequest.future = future;
+        appendQueue.add(appendRequest);
+        try {
+            future.get();
+            return;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         return;
     }
 

@@ -42,7 +42,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
             }
             System.out.print('\n');
         } 
-            
+        logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         storage.append(topic, queueId, offset, data);
         
         // Map<Integer, Map<Long, ByteBuffer>> map1 = getOrPutDefault(appendData, topic, new HashMap<>());

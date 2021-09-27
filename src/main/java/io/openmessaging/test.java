@@ -183,20 +183,21 @@
 //         // System.out.println("generate mq request");
 //         // t.genData(fileCount);
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
-//         long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
-//         System.out.println(ret);
-//         ret = mq.append("b", 1001, ByteBuffer.wrap("20212".getBytes()));
-//         System.out.println(ret);
-//         ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
-//         System.out.println(ret);
-//         ret = mq.append("b", 1001, ByteBuffer.wrap("20214".getBytes()));
-//         System.out.println(ret);
+//         long ret;
+//         // long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
+//         // System.out.println(ret);
+//         // ret = mq.append("b", 1001, ByteBuffer.wrap("20212".getBytes()));
+//         // System.out.println(ret);
+//         // ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
+//         // System.out.println(ret);
+//         // ret = mq.append("b", 1001, ByteBuffer.wrap("20214".getBytes()));
+//         // System.out.println(ret);
 
 //         // byte[] b = new byte[17408];
 //         // new Random().nextBytes(b);
 //         // ByteBuffer buf = ByteBuffer.wrap(b);
 //         // // buf.position(536870912);
-//         // for (int i=0; i<2; i++) {
+//         // for (int i=0; i<150000; i++) {
 //         //     buf.rewind();
 //         //     ret = mq.append("a", 1000, buf);
 //         // }
