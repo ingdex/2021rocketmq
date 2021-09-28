@@ -99,20 +99,57 @@
 //         int fileCount = 2;
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
-//         // t.appendThread("topic1", mq);
-//         // t.getRangeAndCheckThread("topic1", mq);
+//         singleThreadTest(mq);
+
+//         return;
+//     }
+
+//     static void singleThreadTest(DefaultMessageQueueImpl mq) {
+//         long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
+//         System.out.println(ret);
+//         ret = mq.append("b", 1001, ByteBuffer.wrap("20212".getBytes()));
+//         System.out.println(ret);
+//         ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
+//         System.out.println(ret);
+//         ret = mq.append("b", 1001, ByteBuffer.wrap("20214".getBytes()));
+//         System.out.println(ret);
+
+//         // byte[] b = new byte[17408];
+//         // new Random().nextBytes(b);
+//         // ByteBuffer buf = ByteBuffer.wrap(b);
+//         // // buf.position(536870912);
+//         // for (int i=0; i<150000; i++) {
+//         //     buf.rewind();
+//         //     ret = mq.append("a", 1000, buf);
+//         // }
+
+//         Map<Integer, ByteBuffer> retMap;
+//         retMap = mq.getRange("a", 1000, 0, 4);
+//         System.out.println("getRange(a, 1000, 0, 4): ");
+//         printMap(retMap, false);
+//         retMap = mq.getRange("b", 1001, 0, 2);
+//         System.out.println("getRange(b, 1001, 0, 2): ");
+//         printMap(retMap, false);
+//         retMap = mq.getRange("b", 1001, 1, 2);
+//         System.out.println("getRange(b, 1001, 1, 2): ");
+//         printMap(retMap, true);
+//         // retMap = mq.;
+//         // System.out.println(" " + retMap);
+//     }
+
+//     static void multiThreadTest(DefaultMessageQueueImpl mq) {
 //         int topicNum = 3;
-//         ArrayList<Thread> appendThreads = new ArrayList<>();
+//         ArrayList<Thread> appendThreadhreads = new ArrayList<>();
 //         ArrayList<Thread> getThreads = new ArrayList<>();
 //         for (int i=0; i<topicNum; i++) {
 //             String topic = "topic" + i;
-//             Thread apt = new appendT(topic, mq);
-//             appendThreads.add(apt);
+//             Thread apt = new appendThread(topic, mq);
+//             appendThreadhreads.add(apt);
 //             apt.start();
 //         }
 //         try {
 //             for (int i=0; i<topicNum; i++) {
-//                 Thread apt = appendThreads.get(i);
+//                 Thread apt = appendThreadhreads.get(i);
 //                 apt.join();
 //             }
 //             System.out.println("append complete");
@@ -121,7 +158,7 @@
 //         }
 //         for (int i=0; i<topicNum; i++) {
 //             String topic = "topic" + i;
-//             Thread apt = new getRangeAndCheckT(topic, mq);
+//             Thread apt = new getRangeAndCheckThread(topic, mq);
 //             getThreads.add(apt);
 //             apt.start();
 //         }
@@ -133,10 +170,9 @@
 //         } catch (InterruptedException e) {
 //             e.printStackTrace();
 //         }
-//         return;
 //     }
 
-//     static class appendT extends Thread {
+//     static class appendThread extends Thread {
 //         String topic;
 //         DefaultMessageQueueImpl mq;
 
@@ -149,7 +185,7 @@
             
 //         }
 
-//         appendT(String topic, DefaultMessageQueueImpl mq) {
+//         appendThread(String topic, DefaultMessageQueueImpl mq) {
 //             this.topic = topic;
 //             this.mq = mq;
 //         }
@@ -209,7 +245,7 @@
 //     }
 
 
-//     static class getRangeAndCheckT extends Thread {
+//     static class getRangeAndCheckThread extends Thread {
 //         String path;
 //         String topic;
 //         FileChannel channel;
@@ -225,7 +261,7 @@
             
 //         }
 
-//         getRangeAndCheckT(String topic, DefaultMessageQueueImpl mq) {
+//         getRangeAndCheckThread(String topic, DefaultMessageQueueImpl mq) {
 //             this.path = "/essd/" + topic;
 //             this.topic = topic;
 //             this.mq = mq;
