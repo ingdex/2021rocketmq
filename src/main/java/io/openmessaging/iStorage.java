@@ -105,7 +105,7 @@ public class iStorage {
                 
                 request.future.complete(1);
             }
-        },0,1,TimeUnit.MILLISECONDS);
+        },0,10,TimeUnit.MILLISECONDS);
     }
 
     //这个是个模拟批量查询的方法
