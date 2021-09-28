@@ -2,6 +2,10 @@ package io.openmessaging;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.security.sasl.RealmCallback;
+import javax.swing.plaf.ColorUIResource;
+
 import java.nio.channels.FileChannel;
 import java.io.RandomAccessFile;
 import java.io.File;
@@ -117,84 +121,95 @@ public class iStoragePool {
         return dataPhysicalOffset;
     }
 
+    class Task {
+        int totalWriteBufSize;
+        int requestNum;
+        FileChannel channel;
+        long relativeWritePosition;
+        String filename;
+        Task(int totalWriteBufSize, int requestNum, FileChannel channel, long relativeWritePosition, String filename) {
+            this.totalWriteBufSize = totalWriteBufSize;
+            this.requestNum = requestNum;
+            this.channel = channel;
+            this.relativeWritePosition = relativeWritePosition;
+            this.filename = filename;
+        }
+
+        void reset() {
+            totalWriteBufSize = 0;
+            requestNum = 0;
+            channel = null;
+            relativeWritePosition = 0;
+        }
+    }
+ 
     public void append(ArrayList<String> keyList, ArrayList<ByteBuffer> dataList){
         int num = keyList.size();
         int writeBufSize = 0;
-        int totalWriteBufSize = 0;
+        // int totalWriteBufSize = 0;
         ByteBuffer writeBuf;
         ArrayList<Integer> totalWriteBufLenList = new ArrayList<>();
         ArrayList<Integer> requestNumList = new ArrayList<>();
         ArrayList<FileChannel> channelList = new ArrayList<>();
         ArrayList<Long> relativeWritePositionList = new ArrayList<>();
-        int fileNum = 0;
-        int requestNum = 0;
-        long dataPhysicalOffset = pyhsicalOffset;
+        ArrayList<Task> taskList = new ArrayList<>();
+        // int requestNum = 0;
+        long dataPhysicalOffset;   // 数据段起始地址在storagepool中的偏移
+        String filename_t = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
+        FileChannel channel_t = getFileChannel(filename_t);
+        Task curTask = new Task(0, 0, channel_t, pyhsicalOffset, dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data");
         // may overflow
         for (int i=0; i<num; i++) {
             String key = keyList.get(i);
             ByteBuffer data = dataList.get(i);
             // Disk layout:
             // || sizeof(key) | key | sizeof(data) | data ||
-            // int preTotalWriteBufSize = writeBufSize;
             writeBufSize = 4 + key.getBytes().length + 4 + data.remaining();
-            // totalWriteBufSize += writeBufSize;
             // 当前文件空间不足
             if (pyhsicalOffset + writeBufSize > currentBarrierOffset + FILESIZE) {
-                if (totalWriteBufSize == 0) {
-                    requestNum = 1;
+                if (curTask.totalWriteBufSize == 0) {
                     currentBarrierOffset = pyhsicalOffset;
+                    curTask.filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
+                    curTask.requestNum = 1;
+                    curTask.totalWriteBufSize = writeBufSize;
+                    curTask.channel = getFileChannel(curTask.filename);
+                    curTask.relativeWritePosition = pyhsicalOffset;
                     pyhsicalOffset += writeBufSize;
-                    totalWriteBufSize += writeBufSize;
                     dataPhysicalOffset = pyhsicalOffset - data.remaining();
-                    String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
-                    iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), filename);
+                    iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), curTask.filename);
                     appendMsg.put(key, msg);
                     continue;
                 }
-                totalWriteBufLenList.add(totalWriteBufSize);
-                requestNumList.add(requestNum);
-                fileNum++;
-                requestNum = 1;
-                // writeBufSize -= preWriteBufSize;
-                String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
-                FileChannel channel = getFileChannel(filename);
-                channelList.add(channel);
-                currentBarrierOffset = pyhsicalOffset;
-                long relativeWritePos = pyhsicalOffset - totalWriteBufSize;
-                relativeWritePositionList.add(relativeWritePos);
-                totalWriteBufSize = writeBufSize;
+                taskList.add(curTask);
+                curTask.reset();
 
+                currentBarrierOffset = pyhsicalOffset;
+                curTask.requestNum = 1;
+                curTask.totalWriteBufSize = writeBufSize;
+                curTask.relativeWritePosition = pyhsicalOffset;
+                curTask.filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
+                curTask.channel = getFileChannel(curTask.filename);
                 pyhsicalOffset += writeBufSize;
                 dataPhysicalOffset = pyhsicalOffset - data.remaining();
-                // long dataPhysicalOffset = 
-                iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), filename);
+                iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), curTask.filename);
                 appendMsg.put(key, msg);
                 continue;
             }
-            requestNum++;
             pyhsicalOffset += writeBufSize;
-            totalWriteBufSize += writeBufSize;
+            curTask.requestNum++;
+            curTask.totalWriteBufSize += writeBufSize;
             dataPhysicalOffset = pyhsicalOffset - data.remaining();
-            String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
-            iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), filename);
+            iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), curTask.filename);
             appendMsg.put(key, msg);
         }
-        if (requestNum != 0) {
-            totalWriteBufLenList.add(totalWriteBufSize);
-            requestNumList.add(requestNum);
-            String filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
-            FileChannel channel = getFileChannel(filename);
-            channelList.add(channel);
-            long relativeWritePos = pyhsicalOffset - totalWriteBufSize - currentBarrierOffset;
-            relativeWritePositionList.add(relativeWritePos);
-            fileNum++;
+        if (curTask.requestNum != 0) {
+            taskList.add(curTask);
         }
         int currentRequestPos = 0;
-        for (int i=0; i<fileNum; i++) {
-            int writeBufLenBatch = totalWriteBufLenList.get(i);
-            int requestNumBatch = requestNumList.get(i);
-            writeBuf = ByteBuffer.allocate(writeBufLenBatch);
-            for (int j=0; j<requestNumBatch; j++) {
+        for (int i=0; i<taskList.size(); i++) {
+            curTask = taskList.get(i);
+            writeBuf = ByteBuffer.allocate(curTask.totalWriteBufSize);
+            for (int j=0; j<curTask.requestNum; j++) {
                 String key = keyList.get(currentRequestPos);
                 ByteBuffer data = dataList.get(currentRequestPos);
                 currentRequestPos++;
@@ -204,19 +219,16 @@ public class iStoragePool {
                 writeBuf.put(data);
             }
             writeBuf.flip();
-            FileChannel channel = channelList.get(i);
-            long relativeWritePos = relativeWritePositionList.get(i);
             try {
-                channel.write(writeBuf, relativeWritePos);
+                curTask.channel.write(writeBuf, curTask.relativeWritePosition);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         // force to ssd
-        for (int i=0; i<fileNum; i++) {
-            FileChannel channel = channelList.get(i);
+        for (int i=0; i<taskList.size(); i++) {
             try {
-                channel.force(true);
+                curTask.channel.force(true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
