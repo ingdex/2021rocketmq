@@ -100,7 +100,7 @@
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
 //         singleThreadTest(mq);
-//         multiThreadTest(mq);
+//         // multiThreadTest(mq);
 //         return;
 //     }
 

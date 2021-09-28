@@ -6,9 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import javax.sound.midi.VoiceStatus;
-
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.*;
 import org.apache.log4j.Logger;
+import org.apache.logging.log4j.core.layout.SyslogLayout;
 
 public class iStorage {
 
@@ -76,14 +77,24 @@ public class iStorage {
 
     public void init(){
         System.out.println("init backend thread");
+        AtomicInteger count = new AtomicInteger(0);
     //在init方法中初始化一个定时任务线程，去定时执行我们的查询任务.具体的任务实现是我们根据唯一code查询出来的结果集，以code为key转成map，然后我们队列中的每个Request对象都有自己的唯一code，我们根据code一一对应，给相应的future返回对应的查询结果。
         ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
         poolExecutor.scheduleAtFixedRate(()->{
-            // System.out.println("run backend thread");
+            System.out.println("run backend thread");
             int size = appendQueue.size();
             //如果没有请求直接返回
-            if(size==0)
+            if(size==0) {
+                int no_request = count.getAndIncrement();
+                System.out.println(no_request);
+                if (no_request == 5) {
+                    System.out.println("shutdown");
+                    poolExecutor.shutdownNow();
+                    return;
+                }
                 return ;
+            }
+                
             List<AppendRequest> list = new ArrayList<>();
             for (int i = 0; i < size;i++){
                 AppendRequest request = appendQueue.poll();
