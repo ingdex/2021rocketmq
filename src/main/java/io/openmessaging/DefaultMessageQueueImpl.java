@@ -15,7 +15,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
 
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
     iStorage storage = new iStorage();
-    Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
+    // Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
     // DefaultMessageQueueImpl() {
     //     Integer[] fileSizes = {1, 2, 4};

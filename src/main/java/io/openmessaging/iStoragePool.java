@@ -38,7 +38,7 @@ public class iStoragePool {
             int readPos = 0;
             int ret;
             while((ret = channel.read(keySizeByteBuffer, readPos)) != -1) {
-                keySizeByteBuffer.rewind();
+                keySizeByteBuffer.flip();
                 int keySize = keySizeByteBuffer.getInt();
                 readPos += 4;
                 keyBuffer = ByteBuffer.allocate(keySize);
