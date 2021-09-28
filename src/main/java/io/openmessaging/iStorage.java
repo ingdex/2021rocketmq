@@ -170,6 +170,23 @@ public class iStorage {
         ret = pool.getRange(topic, queueId, offset, fetchNum);
 
         return ret;
+
+        // Map<Integer, ByteBuffer> ret = new HashMap<>();
+        // iStoragePool pool = getStoragePoolByTopic(topic);
+        // if (pool == null) {
+        //     return ret;
+        // }
+        // for(int i = 0; i < fetchNum; i++){
+        //     String key = topic + "_" + String.valueOf(queueId) + "_" + String.valueOf(offset);
+        //     ByteBuffer buf = pool.get(key);
+            
+        //     if (buf == null) {
+        //         break;
+        //     }
+        //     buf.flip();
+        //     ret.put(i, buf);
+        // }
+        // return ret;
     }
 
 }

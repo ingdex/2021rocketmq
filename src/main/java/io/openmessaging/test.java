@@ -100,18 +100,18 @@
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
 //         singleThreadTest(mq);
-
+//         multiThreadTest(mq);
 //         return;
 //     }
 
 //     static void singleThreadTest(DefaultMessageQueueImpl mq) {
-//         long ret = mq.append("a", 1001, ByteBuffer.wrap("2021".getBytes()));
+//         long ret = mq.append("a", 0, ByteBuffer.wrap("111".getBytes()));
 //         System.out.println(ret);
-//         ret = mq.append("b", 1001, ByteBuffer.wrap("20212".getBytes()));
+//         ret = mq.append("b", 1, ByteBuffer.wrap("222".getBytes()));
 //         System.out.println(ret);
-//         ret = mq.append("a", 1000, ByteBuffer.wrap("20213".getBytes()));
+//         ret = mq.append("a", 1, ByteBuffer.wrap("333".getBytes()));
 //         System.out.println(ret);
-//         ret = mq.append("b", 1001, ByteBuffer.wrap("20214".getBytes()));
+//         ret = mq.append("b", 2, ByteBuffer.wrap("444".getBytes()));
 //         System.out.println(ret);
 
 //         // byte[] b = new byte[17408];
@@ -124,17 +124,52 @@
 //         // }
 
 //         Map<Integer, ByteBuffer> retMap;
-//         retMap = mq.getRange("a", 1000, 0, 4);
+//         retMap = mq.getRange("a", 1, 0, 4);
 //         System.out.println("getRange(a, 1000, 0, 4): ");
 //         printMap(retMap, false);
-//         retMap = mq.getRange("b", 1001, 0, 2);
+//         retMap = mq.getRange("b", 1, 0, 2);
 //         System.out.println("getRange(b, 1001, 0, 2): ");
 //         printMap(retMap, false);
-//         retMap = mq.getRange("b", 1001, 1, 2);
+//         retMap = mq.getRange("b", 2, 1, 2);
 //         System.out.println("getRange(b, 1001, 1, 2): ");
 //         printMap(retMap, true);
 //         // retMap = mq.;
 //         // System.out.println(" " + retMap);
+//     }
+
+//     static void multiThreadTest1(DefaultMessageQueueImpl mq) {
+//         int topicNum = 3;
+//         ArrayList<Thread> appendThreadhreads = new ArrayList<>();
+//         ArrayList<Thread> getThreads = new ArrayList<>();
+//         for (int i=0; i<topicNum; i++) {
+//             String topic = "topic" + i;
+//             Thread apt = new appendThread(topic, mq);
+//             appendThreadhreads.add(apt);
+//             apt.start();
+//         }
+//         try {
+//             for (int i=0; i<topicNum; i++) {
+//                 Thread apt = appendThreadhreads.get(i);
+//                 apt.join();
+//             }
+//             System.out.println("append complete");
+//         } catch (InterruptedException e) {
+//             e.printStackTrace();
+//         }
+//         for (int i=0; i<topicNum; i++) {
+//             String topic = "topic" + i;
+//             Thread apt = new getRangeAndCheckThread(topic, mq);
+//             getThreads.add(apt);
+//             apt.start();
+//         }
+//         try {
+//             for (int i=0; i<topicNum; i++) {
+//                 Thread apt = getThreads.get(i);
+//                 apt.join();
+//             }
+//         } catch (InterruptedException e) {
+//             e.printStackTrace();
+//         }
 //     }
 
 //     static void multiThreadTest(DefaultMessageQueueImpl mq) {
@@ -191,9 +226,9 @@
 //         }
 
 //         public void append(String topic, DefaultMessageQueueImpl mq) {
-//             int queueNum = 200;
-//             int msgNum = 1000;
-//             int dataSize = ThreadLocalRandom.current().nextInt(100, 17000);
+//             int queueNum = 2;
+//             int msgNum = 2;
+//             int dataSize = 14;
 //             String path = "/essd/" + topic;
 //             FileChannel channel;
 //             try {
@@ -214,7 +249,7 @@
 //                 int queueId = queueIdList.get(i);
 //                 for (int j=0; j<msgNum; j++) {
 //                     // dataSize++;
-//                     dataSize = 10240;
+//                     // dataSize = 5;
 //                     data = ByteBuffer.allocate(dataSize);
 //                     long offset = mq.append(topic, queueId, data);
 //                     if (offset != j) {
