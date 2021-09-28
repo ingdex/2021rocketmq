@@ -105,7 +105,7 @@ public class iStorage {
                 
                 request.future.complete(1);
             }
-        },0,10,TimeUnit.MILLISECONDS);
+        },0,500,TimeUnit.MICROSECONDS);
     }
 
     //这个是个模拟批量查询的方法
@@ -128,14 +128,6 @@ public class iStorage {
         pool.append(keyList, dataList);
         return null;
     }
-    
-    // public Integer append(String topic, int queueId, long offset, ByteBuffer data){
-    //     iStoragePool pool = topicPools.get(topic);
-    //     String key = topic + String.valueOf(queueId) + String.valueOf(offset);
-    //     pool.append(key, data);
-
-    //     return 1;
-    // }
 
     iStoragePool getStoragePoolByTopic(String topic) {
         return pool1;
