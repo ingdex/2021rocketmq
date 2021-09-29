@@ -82,22 +82,21 @@ public class iStorage {
     //在init方法中初始化一个定时任务线程，去定时执行我们的查询任务.具体的任务实现是我们根据唯一code查询出来的结果集，以code为key转成map，然后我们队列中的每个Request对象都有自己的唯一code，我们根据code一一对应，给相应的future返回对应的查询结果。
         ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
         t = poolExecutor.scheduleAtFixedRate(()->{
-            System.out.println("run backend thread");
+            // System.out.println("run backend thread");
             int size = appendQueue.size();
             //如果没有请求直接返回
             if(size==0) {
-                count++;
-                System.out.println(count);
-                if (count > 5) {
-                    System.out.println("shutdown");
+                // count++;
+                // System.out.println(count);
+                // if (count > 5) {
+                //     System.out.println("shutdown");
                     
-                    t.cancel(true);
-                    poolExecutor.shutdown();
-                    return;
-                }
+                //     t.cancel(true);
+                //     poolExecutor.shutdown();
+                //     return;
+                // }
                 return;
             }
-                
             List<AppendRequest> list = new ArrayList<>();
             for (int i = 0; i < size;i++){
                 AppendRequest request = appendQueue.poll();
@@ -106,11 +105,11 @@ public class iStorage {
             System.out.println("批量处理:"+size);
             // List<String> codes = list.stream().map(s->s.code).collect(Collectors.toList());
             //合并之后的结果集
-            // long startTime = System.nanoTime();
+            long startTime = System.nanoTime();
             List<Integer> batchResult = batchAppend(list);
-            // long endTime = System.nanoTime();
-            // long timeElapsed = endTime - startTime;
-            // System.out.println("Execution time in nanoseconds: " + timeElapsed);
+            long endTime = System.nanoTime();
+            long timeElapsed = endTime - startTime;
+            System.out.println("Execution time in nanoseconds: " + timeElapsed);
 
             // Map<String,Integer> responseMap = new HashMap<>();
             // for (Integer result : batchResult) {

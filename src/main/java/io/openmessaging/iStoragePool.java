@@ -213,8 +213,10 @@ public class iStoragePool {
             fileNum++;
         }
         int currentRequestPos = 0;
+        long total = 0;
         for (int i=0; i<fileNum; i++) {
             int writeBufLenBatch = totalWriteBufLenList.get(i);
+            total += writeBufLenBatch;
             int requestNumBatch = requestNumList.get(i);
             writeBuf = ByteBuffer.allocate(writeBufLenBatch);
             for (int j=0; j<requestNumBatch; j++) {
@@ -235,6 +237,7 @@ public class iStoragePool {
                 e.printStackTrace();
             }
         }
+        System.out.println("write " + total + " bytes");
         // force to ssd
         for (int i=0; i<fileNum; i++) {
             FileChannel channel = channelList.get(i);
