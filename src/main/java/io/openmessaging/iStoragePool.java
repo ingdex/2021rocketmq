@@ -237,7 +237,7 @@ public class iStoragePool {
                 e.printStackTrace();
             }
         }
-        System.out.println("write " + total + " bytes");
+        // System.out.println("write " + total + " bytes");
         // force to ssd
         for (int i=0; i<fileNum; i++) {
             FileChannel channel = channelList.get(i);
@@ -353,7 +353,7 @@ public class iStoragePool {
             return ret;
         }
         FileChannel channel = getFileChannel(msg.fielname);
-        System.out.println(msg.fielname);
+        // System.out.println(msg.fielname);
         try {
             // channel.position(msg.offset);
             ret = ByteBuffer.allocate(msg.size);
