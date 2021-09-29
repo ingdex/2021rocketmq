@@ -99,8 +99,8 @@
 //         int fileCount = 2;
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
-//         singleThreadTest(mq);
-//         // multiThreadTest(mq);
+//         // singleThreadTest(mq);
+//         multiThreadTest(mq);
 //         return;
 //     }
 
@@ -109,7 +109,7 @@
 //         System.out.println(ret);
 //         ret = mq.append("b", 1, ByteBuffer.wrap("222".getBytes()));
 //         System.out.println(ret);
-//         ret = mq.append("a", 1, ByteBuffer.wrap("333".getBytes()));
+//         ret = mq.append("a", 0, ByteBuffer.wrap("333".getBytes()));
 //         System.out.println(ret);
 //         ret = mq.append("b", 2, ByteBuffer.wrap("444".getBytes()));
 //         System.out.println(ret);
@@ -126,10 +126,10 @@
 //         Map<Integer, ByteBuffer> retMap;
 //         retMap = mq.getRange("a", 1, 0, 4);
 //         System.out.println("getRange(a, 1000, 0, 4): ");
-//         printMap(retMap, false);
+//         printMap(retMap, true);
 //         retMap = mq.getRange("b", 1, 0, 2);
 //         System.out.println("getRange(b, 1001, 0, 2): ");
-//         printMap(retMap, false);
+//         printMap(retMap, true);
 //         retMap = mq.getRange("b", 2, 1, 2);
 //         System.out.println("getRange(b, 1001, 1, 2): ");
 //         printMap(retMap, true);
@@ -138,18 +138,18 @@
 //     }
 
 //     static void multiThreadTest1(DefaultMessageQueueImpl mq) {
-//         int topicNum = 3;
-//         ArrayList<Thread> appendThreadhreads = new ArrayList<>();
+//         int topicNum = 10;
+//         ArrayList<Thread> appendThreads = new ArrayList<>();
 //         ArrayList<Thread> getThreads = new ArrayList<>();
 //         for (int i=0; i<topicNum; i++) {
 //             String topic = "topic" + i;
 //             Thread apt = new appendThread(topic, mq);
-//             appendThreadhreads.add(apt);
+//             appendThreads.add(apt);
 //             apt.start();
 //         }
 //         try {
 //             for (int i=0; i<topicNum; i++) {
-//                 Thread apt = appendThreadhreads.get(i);
+//                 Thread apt = appendThreads.get(i);
 //                 apt.join();
 //             }
 //             System.out.println("append complete");
@@ -173,18 +173,18 @@
 //     }
 
 //     static void multiThreadTest(DefaultMessageQueueImpl mq) {
-//         int topicNum = 3;
-//         ArrayList<Thread> appendThreadhreads = new ArrayList<>();
+//         int topicNum = 10;
+//         ArrayList<Thread> appendThreads = new ArrayList<>();
 //         ArrayList<Thread> getThreads = new ArrayList<>();
 //         for (int i=0; i<topicNum; i++) {
 //             String topic = "topic" + i;
 //             Thread apt = new appendThread(topic, mq);
-//             appendThreadhreads.add(apt);
+//             appendThreads.add(apt);
 //             apt.start();
 //         }
 //         try {
 //             for (int i=0; i<topicNum; i++) {
-//                 Thread apt = appendThreadhreads.get(i);
+//                 Thread apt = appendThreads.get(i);
 //                 apt.join();
 //             }
 //             System.out.println("append complete");

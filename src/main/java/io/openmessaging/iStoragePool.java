@@ -17,7 +17,7 @@ public class iStoragePool {
     long currentBarrierOffset = 0;
     public final static long FILESIZE = 1 << 30;
     String dir = iConfig.dataDir;
-    private String poolName;
+    String poolName;
 
     public iStoragePool(String poolName) {
         this.poolName = poolName;

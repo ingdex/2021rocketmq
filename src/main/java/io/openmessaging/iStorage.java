@@ -3,10 +3,11 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-// import java.util.regex.Pattern;
 
-// import javax.sound.midi.VoiceStatus;
-// import java.util.concurrent.atomic.AtomicInteger;
+import java.nio.channels.FileChannel;
+import java.io.RandomAccessFile;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.*;
 // import org.apache.log4j.Logger;
 // import org.apache.logging.log4j.core.layout.SyslogLayout;
@@ -14,7 +15,12 @@ import java.util.concurrent.*;
 public class iStorage {
 
     ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
-    iStoragePool pool1 = new iStoragePool("pool1");
+    final int poolNum = 4;
+    ArrayList<iStoragePool> poolList = new ArrayList<>();
+    // iStoragePool pool1 = new iStoragePool("pool1");
+    // iStoragePool pool2 = new iStoragePool("pool2");
+    // iStoragePool pool1 = new iStoragePool("pool1");
+    // iStoragePool pool1 = new iStoragePool("pool1");
     private LinkedBlockingQueue<AppendRequest> appendQueue = new LinkedBlockingQueue<>();
     // static AtomicInteger count = new AtomicInteger(0);
     static int count = 0;
@@ -42,6 +48,12 @@ public class iStorage {
         // Integer[] fileSizes = {1, 2, 4};
         // Integer[] blockSizes = {1024, 4096};
         // runTests(fileSizes, blockSizes);
+
+        for (int i=0; i<poolNum; i++) {
+            String poolName = "pool" + i;
+            poolList.add(new iStoragePool(poolName));
+        }
+
         String dir = iConfig.dataDir;
         File dirFile = new File(dir);
         File[] files = dirFile.listFiles();
@@ -63,10 +75,10 @@ public class iStorage {
                 String poolName = dataFilename.substring(0, lastIndex1);
                 long offset = Long.valueOf(dataFilename.substring(lastIndex1+1, lastIndex2));
                 iStoragePool pool = getStoragePoolByPoolName(poolName);
-                // if (pool == null) {
-                //     topicPools.put(topic, new iStoragePool(topic));
-                //     pool = topicPools.get(topic);
-                // }
+                if (pool == null) {
+                    System.out.println("err pool name");
+                    break;
+                }
                 pool.appendByFile(path, offset);
             }
         }
@@ -74,7 +86,13 @@ public class iStorage {
     }
 
     iStoragePool getStoragePoolByPoolName(String poolName) {
-        return pool1;
+        for (int i=0; i<poolList.size(); i++) {
+            iStoragePool pool = poolList.get(i);
+            if (pool.poolName.equals(poolName)) {
+                return pool;
+            }
+        }
+        return null;
     }
     
     public void init(){
@@ -131,23 +149,82 @@ public class iStorage {
         return null;
     }
 
+
+    static class poolIOWorker extends Thread {
+        iStoragePool pool;
+        ArrayList<String> keyList;
+        ArrayList<ByteBuffer> dataList;
+
+        class FileMessage {
+            String topic;
+            int queueId;
+            long offset;
+            int dataSize;
+            ByteBuffer data;
+            
+        }
+
+        poolIOWorker(iStoragePool pool, ArrayList<String> keyList, ArrayList<ByteBuffer> dataList) {
+            this.pool = pool;
+            this.keyList = keyList;
+            this.dataList = dataList;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("start append thread" + Thread.currentThread().getName());
+            pool.append(keyList, dataList);
+        }
+    }
+
     public List<Integer> batchAppend(List<AppendRequest> requestList){
-        ArrayList<String> keyList = new ArrayList<>();
-        ArrayList<ByteBuffer> dataList = new ArrayList<>();
+        ArrayList<String> keyList;
+        ArrayList<ByteBuffer> dataList;
+        ArrayList<ArrayList<String>> keyListEachPool = new ArrayList<>();
+        ArrayList<ArrayList<ByteBuffer>> dataListEachPool = new ArrayList<>();
+        ArrayList<Thread> appendThreads = new ArrayList<>();
+
+        // init 
+        for (int i=0; i<poolNum; i++) {
+            keyListEachPool.add(new ArrayList<>());
+            dataListEachPool.add(new ArrayList<>());
+        }
+
         for (AppendRequest request : requestList) {
             // iStoragePool pool = getStoragePoolByTopic(request.topic);
             String key = request.topic + "_" + String.valueOf(request.queueId) + "_" + String.valueOf(request.offset);
-            // pool.append(key, request.data);
+            int topicHash = Math.abs(request.topic.hashCode());
+            int poolIndex = topicHash % poolNum;
+            keyList = keyListEachPool.get(poolIndex);
+            dataList = dataListEachPool.get(poolIndex);
             keyList.add(key);
             dataList.add(request.data);
         }
-        iStoragePool pool = getStoragePoolByTopic("request.topic");
-        pool.append(keyList, dataList);
+        for (int i=0; i<poolNum; i++) {
+            iStoragePool pool = poolList.get(i);
+            // pool.append(keyListEachPool.get(i), dataListEachPool.get(i));
+            Thread t = new poolIOWorker(pool, keyListEachPool.get(i), dataListEachPool.get(i));
+            appendThreads.add(t);
+            t.start();
+        }
+        try {
+            for (int i=0; i<poolNum; i++) {
+                Thread t = appendThreads.get(i);
+                t.join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
     iStoragePool getStoragePoolByTopic(String topic) {
-        return pool1;
+        // int topicIndex = Integer.valueOf(topic.substring(5));
+        // int poolIndex = topicIndex % poolNum;
+        int topicHash = topic.hashCode();
+        int poolIndex = topicHash % poolNum;
+        return poolList.get(poolIndex);
     }
 
     public void append(String topic, int queueId, long offset, ByteBuffer data){
