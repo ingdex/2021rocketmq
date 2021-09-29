@@ -122,7 +122,7 @@ public class iStorage {
                 
                 request.future.complete(1);
             }
-        },0,1000000,TimeUnit.NANOSECONDS);
+        },0,200000,TimeUnit.NANOSECONDS);
     }
 
     //这个是个模拟批量查询的方法
