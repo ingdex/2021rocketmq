@@ -61,7 +61,7 @@ public class iStorage {
             if (!file.isDirectory()) {
                 String path = file.toString();
                 if(!path.endsWith(".data")) {
-                    System.out.println(path);
+                    // System.out.println(path);
                     continue;
                 }
                 String[] pieces1 = path.split("/", 0);
@@ -172,7 +172,7 @@ public class iStorage {
 
         @Override
         public void run() {
-            System.out.println("start append thread" + Thread.currentThread().getName());
+            // System.out.println("start append thread" + Thread.currentThread().getName());
             pool.append(keyList, dataList);
         }
     }
@@ -222,7 +222,7 @@ public class iStorage {
     iStoragePool getStoragePoolByTopic(String topic) {
         // int topicIndex = Integer.valueOf(topic.substring(5));
         // int poolIndex = topicIndex % poolNum;
-        int topicHash = topic.hashCode();
+        int topicHash = Math.abs(topic.hashCode());
         int poolIndex = topicHash % poolNum;
         return poolList.get(poolIndex);
     }
