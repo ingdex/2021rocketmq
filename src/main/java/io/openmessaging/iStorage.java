@@ -102,14 +102,14 @@ public class iStorage {
                 AppendRequest request = appendQueue.poll();
                 list.add(request);
             }
-            System.out.println("批量处理:"+size);
+            // System.out.println("批量处理:"+size);
             // List<String> codes = list.stream().map(s->s.code).collect(Collectors.toList());
             //合并之后的结果集
             long startTime = System.nanoTime();
             List<Integer> batchResult = batchAppend(list);
             long endTime = System.nanoTime();
             long timeElapsed = endTime - startTime;
-            System.out.println("Execution time in nanoseconds: " + timeElapsed);
+            // System.out.println("Execution time in nanoseconds: " + timeElapsed);
 
             // Map<String,Integer> responseMap = new HashMap<>();
             // for (Integer result : batchResult) {
@@ -122,7 +122,7 @@ public class iStorage {
                 
                 request.future.complete(1);
             }
-        },0,500,TimeUnit.MICROSECONDS);
+        },0,500000,TimeUnit.NANOSECONDS);
     }
 
     //这个是个模拟批量查询的方法
