@@ -218,9 +218,9 @@
 //         }
 
 //         public void append(String topic, DefaultMessageQueueImpl mq) {
-//             int queueNum = 2;
-//             int msgNum = 2;
-//             int dataSize = 14;
+//             int queueNum = 200;
+//             int msgNum = 2000;
+//             int dataSize = 1000;
 //             String path = "/essd/" + topic;
 //             FileChannel channel;
 //             try {
