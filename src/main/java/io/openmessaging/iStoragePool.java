@@ -374,6 +374,7 @@ public class iStoragePool {
             FileChannel channel = getFileChannel(msg.fielname);
             try {
                 channel.read(buf, dataOffset);
+                logger.debug("dataOffset " + dataOffset + " msg.size " + msg.size);
             } catch (IOException e) {
                 e.printStackTrace();
             }
