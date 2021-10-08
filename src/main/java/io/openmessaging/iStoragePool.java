@@ -9,7 +9,7 @@ import java.nio.channels.FileChannel;
 import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.IOException;
-
+import org.apache.log4j.Logger;
 // 线程不安全
 public class iStoragePool {
     ConcurrentHashMap <String, iMessage> appendMsg = new ConcurrentHashMap<>();
@@ -23,7 +23,7 @@ public class iStoragePool {
     ArrayList<ByteBuffer> writeBufList;
     final int writeBufNum = 50;
     final int writeBufSize = 17 * 1024 * 50;
-
+    Logger logger = Logger.getLogger(iStoragePool.class);
     ByteBuffer writeBuf = ByteBuffer.allocateDirect(writeBufSize);
 
     public iStoragePool(String poolName) {
@@ -31,6 +31,7 @@ public class iStoragePool {
         // for (int i=0; i<writeBufNum; i++) {
         //     writeBufList.add(ByteBuffer.allocateDirect(writeBufSize));
         // }
+        
     }
 
     public void appendByFile(String path, long barrierOffset) {
@@ -209,8 +210,10 @@ public class iStoragePool {
             taskList.add(curTask);
         }
         int currentRequestPos = 0;
+        logger.debug("taskList.size " + taskList.size() + " all requestNum " + keyList.size());
         for (int i=0; i<taskList.size(); i++) {
             curTask = taskList.get(i);
+            logger.debug("taskList.requestNum " + curTask.requestNum);
             writeBuf.clear();
             for (int j=0; j<curTask.requestNum; j++) {
                 String key = keyList.get(currentRequestPos);

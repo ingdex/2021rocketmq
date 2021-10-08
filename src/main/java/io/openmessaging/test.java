@@ -381,7 +381,7 @@
 //     }
 
 //     public static void main(String[] args) {
-//         int topicNum = 2;
+//         int topicNum = 20;
 //         int queueNum = 2;
 //         int msgNum = 2;
 //         int dataSize = 14;
