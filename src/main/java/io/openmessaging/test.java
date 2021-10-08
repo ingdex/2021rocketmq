@@ -381,9 +381,9 @@
 //     }
 
 //     public static void main(String[] args) {
-//         int topicNum = 20;
-//         int queueNum = 2;
-//         int msgNum = 2;
+//         int topicNum = 40;
+//         int queueNum = 10;
+//         int msgNum = 10;
 //         int dataSize = 14;
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
