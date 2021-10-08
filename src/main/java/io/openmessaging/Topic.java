@@ -31,7 +31,7 @@ public class Topic {
         MyQueue que = queueMap.get(queueId);
         // Queue que = queueMap.getOrPutDefault(queueMap, Integer.valueOf(queueId), new Query());
         if (que == null) {
-            queueMap.put(queueId, new MyQueue(null, "/essd/" + topicId + String.valueOf(queueId)));
+            queueMap.put(queueId, new MyQueue(null, iConfig.dataDir + topicId + String.valueOf(queueId)));
             que = queueMap.get(queueId);
         }
         

@@ -3,7 +3,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.alibaba.fastjson.serializer.ByteBufferCodec;
+// import com.alibaba.fastjson.serializer.ByteBufferCodec;
 
 import java.nio.channels.FileChannel;
 import java.io.RandomAccessFile;
@@ -24,11 +24,13 @@ public class iStoragePool {
     final int writeBufNum = 50;
     final int writeBufSize = 17 * 1024 * 50;
 
+    ByteBuffer writeBuf = ByteBuffer.allocateDirect(writeBufSize);
+
     public iStoragePool(String poolName) {
         this.poolName = poolName;
-        for (int i=0; i<writeBufNum; i++) {
-            writeBufList.add(ByteBuffer.allocateDirect(writeBufSize));
-        }
+        // for (int i=0; i<writeBufNum; i++) {
+        //     writeBufList.add(ByteBuffer.allocateDirect(writeBufSize));
+        // }
     }
 
     public void appendByFile(String path, long barrierOffset) {
@@ -152,7 +154,7 @@ public class iStoragePool {
         int num = keyList.size();
         int writeBufSize = 0;
         // int totalWriteBufSize = 0;
-        ByteBuffer writeBuf;
+        // ByteBuffer writeBuf;
         ArrayList<Task> taskList = new ArrayList<>();
         // int requestNum = 0;
         long dataPhysicalOffset;   // 数据段起始地址在storagepool中的偏移
@@ -209,7 +211,7 @@ public class iStoragePool {
         int currentRequestPos = 0;
         for (int i=0; i<taskList.size(); i++) {
             curTask = taskList.get(i);
-            writeBuf = ByteBuffer.allocate(curTask.totalWriteBufSize);
+            writeBuf.clear();
             for (int j=0; j<curTask.requestNum; j++) {
                 String key = keyList.get(currentRequestPos);
                 ByteBuffer data = dataList.get(currentRequestPos);
@@ -219,7 +221,9 @@ public class iStoragePool {
                 writeBuf.putInt(data.remaining());
                 writeBuf.put(data);
             }
-            writeBuf.rewind();
+            // writeBuf.rewind();
+            writeBuf.limit(curTask.totalWriteBufSize);
+            writeBuf.position(0);
             try {
                 curTask.channel.write(writeBuf, curTask.relativeWritePosition);
             } catch (IOException e) {

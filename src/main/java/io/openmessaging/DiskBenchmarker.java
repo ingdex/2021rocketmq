@@ -23,7 +23,7 @@ public class DiskBenchmarker {
         this.BLOCKSIZE = blockSize;
         this.NBLOCKS = 1024000000 / this.BLOCKSIZE * gigaBytes;
 
-        String fileName = "/essd/DiskBenchFile" + gigaBytes;
+        String fileName = iConfig.dataDir + "DiskBenchFile" + gigaBytes;
         this.file = Paths.get(fileName);
     }
 

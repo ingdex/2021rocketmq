@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DefaultMessageQueueImpl extends MessageQueue {
     ConcurrentHashMap<String, Map<Integer, Long>> appendOffset = new ConcurrentHashMap<>();
-    private AtomicLong appendId = new AtomicLong(0L);
+    // private AtomicLong appendId = new AtomicLong(0L);
 
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
     iStorage storage = new iStorage();
