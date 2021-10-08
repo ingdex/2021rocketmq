@@ -382,9 +382,9 @@
 
 //     public static void main(String[] args) {
 //         int topicNum = 40;
-//         int queueNum = 10;
-//         int msgNum = 10;
-//         int dataSize = 14;
+//         int queueNum = 100;
+//         int msgNum = 100;
+//         int dataSize = 4096;
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
 //         // singleThreadTest(mq);

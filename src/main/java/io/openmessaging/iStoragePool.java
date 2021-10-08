@@ -161,7 +161,7 @@ public class iStoragePool {
         long dataPhysicalOffset;   // 数据段起始地址在storagepool中的偏移
         String filename_t = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
         FileChannel channel_t = getFileChannel(filename_t);
-        Task curTask = new Task(0, 0, channel_t, pyhsicalOffset, dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data");
+        Task curTask = new Task(0, 0, channel_t, pyhsicalOffset - currentBarrierOffset, dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data");
         // may overflow
         for (int i=0; i<num; i++) {
             String key = keyList.get(i);
