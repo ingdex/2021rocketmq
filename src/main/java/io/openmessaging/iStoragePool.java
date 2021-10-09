@@ -23,7 +23,7 @@ public class iStoragePool {
     ArrayList<ByteBuffer> writeBufList;
     final int writeBufNum = 50;
     final int writeBufSize = 17 * 1024 * 50;
-    Logger logger = Logger.getLogger(iStoragePool.class);
+    // Logger logger = Logger.getLogger(iStoragePool.class);
     ByteBuffer writeBuf = ByteBuffer.allocateDirect(writeBufSize);
 
     public iStoragePool(String poolName) {
@@ -210,10 +210,10 @@ public class iStoragePool {
             taskList.add(curTask);
         }
         int currentRequestPos = 0;
-        logger.debug("taskList.size " + taskList.size() + " all requestNum " + keyList.size());
+        // logger.debug("taskList.size " + taskList.size() + " all requestNum " + keyList.size());
         for (int i=0; i<taskList.size(); i++) {
             curTask = taskList.get(i);
-            logger.debug("taskList.requestNum " + curTask.requestNum);
+            // logger.debug("taskList.requestNum " + curTask.requestNum);
             writeBuf.clear();
             // writeBuf.rewind();
             for (int j=0; j<curTask.requestNum; j++) {
@@ -374,7 +374,7 @@ public class iStoragePool {
             FileChannel channel = getFileChannel(msg.fielname);
             try {
                 channel.read(buf, dataOffset);
-                logger.debug("dataOffset " + dataOffset + " msg.size " + msg.size);
+                // logger.debug("dataOffset " + dataOffset + " msg.size " + msg.size);
             } catch (IOException e) {
                 e.printStackTrace();
             }

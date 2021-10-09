@@ -15,7 +15,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
 
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
     iStorage storage = new iStorage();
-    Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
+    // Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
     // DefaultMessageQueueImpl() {
     //     Integer[] fileSizes = {1, 2, 4};
@@ -76,7 +76,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         //         System.out.print('\n');
         //     }
         // }
-        logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
+        // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
         return ret;
     }
 

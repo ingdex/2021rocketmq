@@ -9,7 +9,7 @@ import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.*;
-// import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
 // import org.apache.logging.log4j.core.layout.SyslogLayout;
 
 public class iStorage {
@@ -25,6 +25,7 @@ public class iStorage {
     // static AtomicInteger count = new AtomicInteger(0);
     static int count = 0;
     static ScheduledFuture<?> t;
+    Logger logger = Logger.getLogger(iStorage.class);
     class AppendRequest {
         String topic;
         int queueId;
@@ -104,15 +105,7 @@ public class iStorage {
             int size = appendQueue.size();
             //如果没有请求直接返回
             if(size==0) {
-                // count++;
-                // System.out.println(count);
-                // if (count > 5) {
-                //     System.out.println("shutdown");
-                    
-                //     t.cancel(true);
-                //     poolExecutor.shutdown();
-                //     return;
-                // }
+                System.out.println("size = 0");
                 return;
             }
             List<AppendRequest> list = new ArrayList<>();
