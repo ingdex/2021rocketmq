@@ -182,20 +182,20 @@
 //         } catch (InterruptedException e) {
 //             e.printStackTrace();
 //         }
-//         for (int i=0; i<topicNum; i++) {
-//             String topic = "topic" + i;
-//             Thread apt = new getRangeAndCheckThread(topic, mq);
-//             getThreads.add(apt);
-//             apt.start();
-//         }
-//         try {
-//             for (int i=0; i<topicNum; i++) {
-//                 Thread apt = getThreads.get(i);
-//                 apt.join();
-//             }
-//         } catch (InterruptedException e) {
-//             e.printStackTrace();
-//         }
+//         // for (int i=0; i<topicNum; i++) {
+//         //     String topic = "topic" + i;
+//         //     Thread apt = new getRangeAndCheckThread(topic, mq);
+//         //     getThreads.add(apt);
+//         //     apt.start();
+//         // }
+//         // try {
+//         //     for (int i=0; i<topicNum; i++) {
+//         //         Thread apt = getThreads.get(i);
+//         //         apt.join();
+//         //     }
+//         // } catch (InterruptedException e) {
+//         //     e.printStackTrace();
+//         // }
 //     }
 
 //     static class appendThread extends Thread {
@@ -381,9 +381,15 @@
 //     }
 
 //     public static void main(String[] args) {
+//         // //返回java虚拟机中的内存总量
+//         // long totalMemory = Runtime.getRuntime().totalMemory();
+//         // //返回java虚拟机试图使用的最大内存量
+//         // long maxMemory = Runtime.getRuntime().maxMemory();
+//         // System.out.println("Total_Memory(-Xms ) =  "+ totalMemory + " 字节  " + (totalMemory / (double)1024/1024)+"MB");
+//         // System.out.println("Max_Memory(-Xmx ) =  "+ maxMemory + " 字节  " + (maxMemory / (double)1024/1024)+"MB");
 //         int topicNum = 40;
-//         int queueNum = 100;
-//         int msgNum = 100;
+//         int queueNum = 2;
+//         int msgNum = 2;
 //         int dataSize = 4096;
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();

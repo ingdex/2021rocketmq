@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "java",
+			"mainClass": "io.openmessaging.test",
+			"targetPath": "${workspaceFolder}/${workspaceFolderBasename}.jar",
+			"elements": [
+				"${compileOutput}",
+				"${dependencies}"
+			],
+			"problemMatcher": [],
+			"label": "java: exportjar:mq-sample",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}, 
+            
+		}
+	]
+}

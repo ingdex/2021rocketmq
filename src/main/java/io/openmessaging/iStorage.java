@@ -98,16 +98,22 @@ public class iStorage {
     
     public void init(){
         System.out.println("init backend thread");
+        
     //在init方法中初始化一个定时任务线程，去定时执行我们的查询任务.具体的任务实现是我们根据唯一code查询出来的结果集，以code为key转成map，然后我们队列中的每个Request对象都有自己的唯一code，我们根据code一一对应，给相应的future返回对应的查询结果。
         ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
         t = poolExecutor.scheduleAtFixedRate(()->{
             // System.out.println("run backend thread");
             int size = appendQueue.size();
+            System.out.println("size = " + size);
             //如果没有请求直接返回
             if(size==0) {
-                System.out.println("size = 0");
+                count++;
+                if (count == 10) {
+                    System.exit(0);
+                }
                 return;
             }
+            count = 0;
             List<AppendRequest> list = new ArrayList<>();
             for (int i = 0; i < size;i++){
                 AppendRequest request = appendQueue.poll();
