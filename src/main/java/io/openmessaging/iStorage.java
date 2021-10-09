@@ -104,16 +104,16 @@ public class iStorage {
         t = poolExecutor.scheduleAtFixedRate(()->{
             // System.out.println("run backend thread");
             int size = appendQueue.size();
-            System.out.println("size = " + size);
             //如果没有请求直接返回
             if(size==0) {
-                count++;
-                if (count == 10) {
-                    System.exit(0);
-                }
+                // System.out.println("size = 0");
+                // count++;
+                // if (count == 10) {
+                //     System.exit(0);
+                // }
                 return;
             }
-            count = 0;
+            // count = 0;
             List<AppendRequest> list = new ArrayList<>();
             for (int i = 0; i < size;i++){
                 AppendRequest request = appendQueue.poll();

@@ -217,6 +217,9 @@ public class iStoragePool {
             writeBuf.clear();
             // writeBuf.rewind();
             for (int j=0; j<curTask.requestNum; j++) {
+                if (currentRequestPos >= keyList.size()) {
+                    break;
+                }
                 String key = keyList.get(currentRequestPos);
                 ByteBuffer data = dataList.get(currentRequestPos);
                 currentRequestPos++;
