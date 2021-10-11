@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 public class iStorage {
 
     ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
-    final int poolNum = 8;
+    final int poolNum = 6;
     ArrayList<iStoragePool> poolList = new ArrayList<>();
     // iStoragePool pool1 = new iStoragePool("pool1");
     // iStoragePool pool2 = new iStoragePool("pool2");
