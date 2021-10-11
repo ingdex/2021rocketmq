@@ -164,7 +164,7 @@
 //     //     }
 //     // }
 
-//     static void multiThreadTest(DefaultMessageQueueImpl mq, int topicNum, int queueNum, int msgNum, int dataSize) {
+//     static void multiThreadTest(DefaultMessageQueueImpl mq, int topicNum, int queueNum, int msgNum, int dataSize, boolean check) {
 //         ArrayList<Thread> appendThreads = new ArrayList<>();
 //         ArrayList<Thread> getThreads = new ArrayList<>();
 //         for (int i=0; i<topicNum; i++) {
@@ -182,20 +182,23 @@
 //         } catch (InterruptedException e) {
 //             e.printStackTrace();
 //         }
-//         // for (int i=0; i<topicNum; i++) {
-//         //     String topic = "topic" + i;
-//         //     Thread apt = new getRangeAndCheckThread(topic, mq);
-//         //     getThreads.add(apt);
-//         //     apt.start();
-//         // }
-//         // try {
-//         //     for (int i=0; i<topicNum; i++) {
-//         //         Thread apt = getThreads.get(i);
-//         //         apt.join();
-//         //     }
-//         // } catch (InterruptedException e) {
-//         //     e.printStackTrace();
-//         // }
+//         if (!check) {
+//             return;
+//         }
+//         for (int i=0; i<topicNum; i++) {
+//             String topic = "topic" + i;
+//             Thread apt = new getRangeAndCheckThread(topic, mq);
+//             getThreads.add(apt);
+//             apt.start();
+//         }
+//         try {
+//             for (int i=0; i<topicNum; i++) {
+//                 Thread apt = getThreads.get(i);
+//                 apt.join();
+//             }
+//         } catch (InterruptedException e) {
+//             e.printStackTrace();
+//         }
 //     }
 
 //     static class appendThread extends Thread {
@@ -391,10 +394,11 @@
 //         int queueNum = 2;
 //         int msgNum = 2;
 //         int dataSize = 4096;
+//         boolean check = true;
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
 //         // singleThreadTest(mq);
-//         multiThreadTest(mq, topicNum, queueNum, msgNum, dataSize);
+//         multiThreadTest(mq, topicNum, queueNum, msgNum, dataSize, check);
 //         return;
 //     }
 // }

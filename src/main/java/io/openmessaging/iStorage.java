@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 public class iStorage {
 
     ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
-    final int poolNum = 1;
+    final int poolNum = 4;
     ArrayList<iStoragePool> poolList = new ArrayList<>();
     // iStoragePool pool1 = new iStoragePool("pool1");
     // iStoragePool pool2 = new iStoragePool("pool2");
@@ -121,11 +121,11 @@ public class iStorage {
             }
             // System.out.println("批量处理:"+size);
             // List<String> codes = list.stream().map(s->s.code).collect(Collectors.toList());
-            //合并之后的结果集
-            long startTime = System.nanoTime();
+            // 合并之后的结果集
+            // long startTime = System.nanoTime();
             List<Integer> batchResult = batchAppend(list);
-            long endTime = System.nanoTime();
-            long timeElapsed = endTime - startTime;
+            // long endTime = System.nanoTime();
+            // long timeElapsed = endTime - startTime;
             // System.out.println("Execution time in nanoseconds: " + timeElapsed);
 
             // Map<String,Integer> responseMap = new HashMap<>();
@@ -139,7 +139,7 @@ public class iStorage {
                 
                 request.future.complete(1);
             }
-        },0,200000,TimeUnit.NANOSECONDS);
+        },0,800000,TimeUnit.NANOSECONDS);
     }
 
     //这个是个模拟批量查询的方法
@@ -199,6 +199,8 @@ public class iStorage {
             keyList.add(key);
             dataList.add(request.data);
         }
+        // iStoragePool pool = poolList.get(0);
+        // pool.append(keyListEachPool.get(0), dataListEachPool.get(0));
         for (int i=0; i<poolNum; i++) {
             iStoragePool pool = poolList.get(i);
             // pool.append(keyListEachPool.get(i), dataListEachPool.get(i));
@@ -255,23 +257,6 @@ public class iStorage {
         ret = pool.getRange(topic, queueId, offset, fetchNum);
 
         return ret;
-
-        // Map<Integer, ByteBuffer> ret = new HashMap<>();
-        // iStoragePool pool = getStoragePoolByTopic(topic);
-        // if (pool == null) {
-        //     return ret;
-        // }
-        // for(int i = 0; i < fetchNum; i++){
-        //     String key = topic + "_" + String.valueOf(queueId) + "_" + String.valueOf(offset);
-        //     ByteBuffer buf = pool.get(key);
-            
-        //     if (buf == null) {
-        //         break;
-        //     }
-        //     buf.flip();
-        //     ret.put(i, buf);
-        // }
-        // return ret;
     }
 
 }
