@@ -12,7 +12,12 @@ import java.io.IOException;
 import java.util.concurrent.*;
 import org.apache.log4j.Logger;
 // import org.apache.logging.log4j.core.layout.SyslogLayout;
-
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 public class iStorage {
 
     ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
@@ -25,11 +30,20 @@ public class iStorage {
     // iStoragePool pool1 = new iStoragePool("pool1");
     private LinkedBlockingQueue<AppendRequest> appendQueueRead = new LinkedBlockingQueue<>();
     private LinkedBlockingQueue<AppendRequest> appendQueueWrite = new LinkedBlockingQueue<>();
+    
     // ArrayList<LinkedBlockingQueue<AppendRequest>> appendQueueList = new ArrayList<>();
     // static AtomicInteger count = new AtomicInteger(0);
     static int count = 0;
     static ScheduledFuture<?> t;
-    Logger logger = Logger.getLogger(iStorage.class);
+    // Logger logger = Logger.getLogger(iStorage.class);
+
+    private Queue<AppendRequest> appendQueue = new LinkedList<>();;
+    private final Lock lock = new ReentrantLock();
+    //表示生产者线程
+    private final Condition notFull = lock.newCondition();
+    //表示消费者线程
+    private final Condition notEmpty = lock.newCondition();
+    private final Condition appendThread = lock.newCondition();
     class AppendRequest {
         String topic;
         int queueId;
@@ -112,7 +126,8 @@ public class iStorage {
         ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
         t = poolExecutor.scheduleAtFixedRate(()->{
             // System.out.println("run backend thread");
-            int size = appendQueueWrite.size();
+            lock.lock();
+            int size = appendQueue.size();
             // ArrayList<Integer> sizeList = new ArrayList<>();
             // boolean allEmpty = true;
             // for (int i=0; i<appendQueueNum; i++) {
@@ -129,15 +144,16 @@ public class iStorage {
                 // if (count == 10) {
                 //     System.exit(0);
                 // }
+                lock.unlock();
                 return;
             }
             // count = 0;
-            LinkedBlockingQueue<AppendRequest> tmp = appendQueueWrite;
-            appendQueueWrite = appendQueueRead;
-            appendQueueRead = tmp;
+            // LinkedBlockingQueue<AppendRequest> tmp = appendQueueWrite;
+            // appendQueueWrite = appendQueueRead;
+            // appendQueueRead = tmp;
             List<AppendRequest> list = new ArrayList<>();
             for (int i=0; i<size; i++) {
-                AppendRequest request = appendQueueRead.poll();
+                AppendRequest request = appendQueue.poll();
                 list.add(request);
             }
             // for (int i=0; i<appendQueueNum; i++) {
@@ -161,11 +177,8 @@ public class iStorage {
             // }
 
             //返回对应的请求结果
-            for (AppendRequest request : list) {
-                // Map<String, Object> response = responseMap.get(request.code);
-                
-                request.future.complete(1);
-            }
+            appendThread.signalAll();
+            lock.unlock();
         },0,800000,TimeUnit.NANOSECONDS);
     }
 
@@ -260,20 +273,16 @@ public class iStorage {
         // String key = topic + String.valueOf(queueId) + String.valueOf(offset);
         // pool.append(key, data);  
         AppendRequest appendRequest = new AppendRequest(topic, queueId, offset, data);
-        CompletableFuture<Integer> future = new CompletableFuture<>();
-        appendRequest.future = future;
-        appendQueueWrite.add(appendRequest);
-        // int topicHash = Math.abs(topic.hashCode());
-        // int index = topicHash % appendQueueNum;
-        // appendQueueList.get(index).add(appendRequest);
+        lock.lock();
         try {
-            future.get();
-            return;
+            appendQueue.add(appendRequest);
+            appendThread.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+        } finally {
+            lock.unlock();
         }
+        
         return;
     }
 
