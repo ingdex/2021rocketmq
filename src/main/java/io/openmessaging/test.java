@@ -163,14 +163,25 @@
 //     //         e.printStackTrace();
 //     //     }
 //     // }
-
+//     private static String resultPrinter(long t0, long t1, long bytes, String info) {
+//         double duration = (t1 - t0) / 1000000000d; // in seconds.
+//         double MB = (bytes / 1024d / 1024d);
+//         double speedInMBs = MB / duration;
+//         String output = (info + " - " + MB + " MB in " + duration + "s - " + speedInMBs + " MB/s");
+//         return output;
+//     }
 //     static void multiThreadTest(DefaultMessageQueueImpl mq, int topicNum, int queueNum, int msgNum, int dataSize, boolean check) {
 //         ArrayList<Thread> appendThreads = new ArrayList<>();
 //         ArrayList<Thread> getThreads = new ArrayList<>();
+//         long bytes = topicNum * queueNum * msgNum * dataSize;
 //         for (int i=0; i<topicNum; i++) {
 //             String topic = "topic" + i;
-//             Thread apt = new appendThread(topic, mq, queueNum, msgNum, dataSize);
+//             Thread apt = new appendThread(topic, mq, queueNum, msgNum, dataSize, check);
 //             appendThreads.add(apt);
+//         }
+//         long t0 = System.nanoTime();
+//         for (int i=0; i<topicNum; i++) {
+//             Thread apt = appendThreads.get(i);
 //             apt.start();
 //         }
 //         try {
@@ -178,6 +189,8 @@
 //                 Thread apt = appendThreads.get(i);
 //                 apt.join();
 //             }
+//             long t1 = System.nanoTime();
+//             System.out.println(resultPrinter(t0, t1, bytes, "Write"));
 //             System.out.println("append complete");
 //         } catch (InterruptedException e) {
 //             e.printStackTrace();
@@ -207,6 +220,8 @@
 //         int queueNum; 
 //         int msgNum; 
 //         int dataSize;
+//         boolean check;
+//         ByteBuffer data;
 //         class FileMessage {
 //             String topic;
 //             int queueId;
@@ -216,12 +231,16 @@
             
 //         }
 
-//         appendThread(String topic, DefaultMessageQueueImpl mq, int queueNum, int msgNum, int dataSize) {
+//         appendThread(String topic, DefaultMessageQueueImpl mq, int queueNum, int msgNum, int dataSize, boolean check) {
 //             this.topic = topic;
 //             this.mq = mq;
 //             this.queueNum = queueNum;
 //             this.msgNum = msgNum;
 //             this.dataSize = dataSize;
+//             this.check = check;
+//             byte[] b = new byte[dataSize];
+//             new Random().nextBytes(b);
+//             data = ByteBuffer.wrap(b);
 //         }
 
 //         public void append(String topic, DefaultMessageQueueImpl mq) {
@@ -229,20 +248,21 @@
 //             // int msgNum = 2000;
 //             // int dataSize = 1000;
 //             String path = iConfig.dataDir + topic;
-//             FileChannel channel;
+//             FileChannel channel = null;
 //             try {
-//                 RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "rw");
-//                 channel = memoryMappedFile.getChannel();
+//                 if (check) {
+//                     RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(path), "rw");
+//                     channel = memoryMappedFile.getChannel();
+//                 }
+                
 //             } catch (Exception e) {
 //                 e.printStackTrace();
 //                 return;
 //             }
             
 //             // 生成随机数据，<topic, queueId, data>
-//             ByteBuffer data;
-//             byte[] b = new byte[dataSize];
-//             new Random().nextBytes(b);
-//             data = ByteBuffer.wrap(b);
+            
+            
 //             // data = ByteBuffer.allocate(dataSize);
 //             // data.flip();
 //             ArrayList<Integer> queueIdList = new ArrayList<>();
@@ -260,6 +280,9 @@
 //                     if (offset != j) {
 //                         System.out.println("err");
 //                         return;
+//                     }
+//                     if (!check) {
+//                         continue;
 //                     }
 //                     data.rewind();
 //                     try {
@@ -391,10 +414,10 @@
 //         // System.out.println("Total_Memory(-Xms ) =  "+ totalMemory + " 字节  " + (totalMemory / (double)1024/1024)+"MB");
 //         // System.out.println("Max_Memory(-Xmx ) =  "+ maxMemory + " 字节  " + (maxMemory / (double)1024/1024)+"MB");
 //         int topicNum = 40;
-//         int queueNum = 20;
-//         int msgNum = 200;
+//         int queueNum = 10;
+//         int msgNum = 20;
 //         int dataSize = 4096;
-//         boolean check = true;
+//         boolean check = false;
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
 //         // singleThreadTest(mq);

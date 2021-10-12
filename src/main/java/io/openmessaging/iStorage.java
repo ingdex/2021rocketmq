@@ -49,7 +49,6 @@ public class iStorage {
         int queueId;
         ByteBuffer data;
         long offset;
-        CompletableFuture<Integer> future;
         AppendRequest(String topic, int queueId, long offset, ByteBuffer data) {
             this.topic = topic;
             this.queueId = queueId;
@@ -147,6 +146,7 @@ public class iStorage {
                 lock.unlock();
                 return;
             }
+            // System.out.println(size);
             // count = 0;
             // LinkedBlockingQueue<AppendRequest> tmp = appendQueueWrite;
             // appendQueueWrite = appendQueueRead;
@@ -179,7 +179,7 @@ public class iStorage {
             //返回对应的请求结果
             appendThread.signalAll();
             lock.unlock();
-        },0,800000,TimeUnit.NANOSECONDS);
+        },0,50000,TimeUnit.NANOSECONDS);
     }
 
     //这个是个模拟批量查询的方法
