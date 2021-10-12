@@ -17,7 +17,7 @@ public class iStorage {
 
     ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
     final int poolNum = 4;
-    final int appendQueueNum = 4;
+    final int appendQueueNum = 2;
     ArrayList<iStoragePool> poolList = new ArrayList<>();
     // iStoragePool pool1 = new iStoragePool("pool1");
     // iStoragePool pool2 = new iStoragePool("pool2");
