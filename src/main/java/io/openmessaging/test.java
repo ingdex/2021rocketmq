@@ -391,8 +391,8 @@
 //         // System.out.println("Total_Memory(-Xms ) =  "+ totalMemory + " 字节  " + (totalMemory / (double)1024/1024)+"MB");
 //         // System.out.println("Max_Memory(-Xmx ) =  "+ maxMemory + " 字节  " + (maxMemory / (double)1024/1024)+"MB");
 //         int topicNum = 40;
-//         int queueNum = 20;
-//         int msgNum = 200;
+//         int queueNum = 2;
+//         int msgNum = 2;
 //         int dataSize = 4096;
 //         boolean check = true;
 //         test t = new test();

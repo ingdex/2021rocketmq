@@ -23,8 +23,9 @@ public class iStorage {
     // iStoragePool pool2 = new iStoragePool("pool2");
     // iStoragePool pool1 = new iStoragePool("pool1");
     // iStoragePool pool1 = new iStoragePool("pool1");
-    private LinkedBlockingQueue<AppendRequest> appendQueue = new LinkedBlockingQueue<>();
-    ArrayList<LinkedBlockingQueue<AppendRequest>> appendQueueList = new ArrayList<>();
+    private LinkedBlockingQueue<AppendRequest> appendQueueRead = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<AppendRequest> appendQueueWrite = new LinkedBlockingQueue<>();
+    // ArrayList<LinkedBlockingQueue<AppendRequest>> appendQueueList = new ArrayList<>();
     // static AtomicInteger count = new AtomicInteger(0);
     static int count = 0;
     static ScheduledFuture<?> t;
@@ -58,9 +59,9 @@ public class iStorage {
             poolList.add(new iStoragePool(poolName));
         }
 
-        for (int i=0; i<appendQueueNum; i++) {
-            appendQueueList.add(new LinkedBlockingQueue<>());
-        }
+        // for (int i=0; i<appendQueueNum; i++) {
+        //     appendQueueList.add(new LinkedBlockingQueue<>());
+        // }
 
         String dir = iConfig.dataDir;
         File dirFile = new File(dir);
@@ -111,18 +112,18 @@ public class iStorage {
         ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
         t = poolExecutor.scheduleAtFixedRate(()->{
             // System.out.println("run backend thread");
-            // int size = appendQueue.size();
+            int size = appendQueueWrite.size();
             // ArrayList<Integer> sizeList = new ArrayList<>();
-            boolean allEmpty = true;
-            for (int i=0; i<appendQueueNum; i++) {
-                sizeList[i] = appendQueueList.get(i).size();
-                if (sizeList[i] != 0) {
-                    allEmpty = false;
-                }
-            }
+            // boolean allEmpty = true;
+            // for (int i=0; i<appendQueueNum; i++) {
+            //     sizeList[i] = appendQueueList.get(i).size();
+            //     if (sizeList[i] != 0) {
+            //         allEmpty = false;
+            //     }
+            // }
 
             //如果没有请求直接返回
-            if(allEmpty) {
+            if(size == 0) {
                 // System.out.println("size = 0");
                 // count++;
                 // if (count == 10) {
@@ -131,13 +132,20 @@ public class iStorage {
                 return;
             }
             // count = 0;
+            LinkedBlockingQueue<AppendRequest> tmp = appendQueueWrite;
+            appendQueueWrite = appendQueueRead;
+            appendQueueRead = tmp;
             List<AppendRequest> list = new ArrayList<>();
-            for (int i=0; i<appendQueueNum; i++) {
-                for (int j=0; j<sizeList[i]; j++){
-                    AppendRequest request = appendQueueList.get(i).poll();
-                    list.add(request);
-                }
+            for (int i=0; i<size; i++) {
+                AppendRequest request = appendQueueRead.poll();
+                list.add(request);
             }
+            // for (int i=0; i<appendQueueNum; i++) {
+            //     for (int j=0; j<sizeList[i]; j++){
+            //         AppendRequest request = appendQueueList.get(i).poll();
+            //         list.add(request);
+            //     }
+            // }
             // System.out.println("批量处理:"+size);
             // List<String> codes = list.stream().map(s->s.code).collect(Collectors.toList());
             // 合并之后的结果集
@@ -254,10 +262,10 @@ public class iStorage {
         AppendRequest appendRequest = new AppendRequest(topic, queueId, offset, data);
         CompletableFuture<Integer> future = new CompletableFuture<>();
         appendRequest.future = future;
-        // appendQueue.add(appendRequest);
-        int topicHash = Math.abs(topic.hashCode());
-        int index = topicHash % appendQueueNum;
-        appendQueueList.get(index).add(appendRequest);
+        appendQueueWrite.add(appendRequest);
+        // int topicHash = Math.abs(topic.hashCode());
+        // int index = topicHash % appendQueueNum;
+        // appendQueueList.get(index).add(appendRequest);
         try {
             future.get();
             return;
