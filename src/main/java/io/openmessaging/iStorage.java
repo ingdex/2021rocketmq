@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import java.nio.channels.FileChannel;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Array;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.*;
@@ -16,12 +17,14 @@ public class iStorage {
 
     ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
     final int poolNum = 4;
+    final int appendQueueNum = 4;
     ArrayList<iStoragePool> poolList = new ArrayList<>();
     // iStoragePool pool1 = new iStoragePool("pool1");
     // iStoragePool pool2 = new iStoragePool("pool2");
     // iStoragePool pool1 = new iStoragePool("pool1");
     // iStoragePool pool1 = new iStoragePool("pool1");
     private LinkedBlockingQueue<AppendRequest> appendQueue = new LinkedBlockingQueue<>();
+    ArrayList<LinkedBlockingQueue<AppendRequest>> appendQueueList = new ArrayList<>();
     // static AtomicInteger count = new AtomicInteger(0);
     static int count = 0;
     static ScheduledFuture<?> t;
@@ -53,6 +56,10 @@ public class iStorage {
         for (int i=0; i<poolNum; i++) {
             String poolName = "pool" + i;
             poolList.add(new iStoragePool(poolName));
+        }
+
+        for (int i=0; i<appendQueueNum; i++) {
+            appendQueueList.add(new LinkedBlockingQueue<>());
         }
 
         String dir = iConfig.dataDir;
@@ -98,14 +105,24 @@ public class iStorage {
     
     public void init(){
         System.out.println("init backend thread");
+        int[] sizeList = new int[appendQueueNum];
         
     //在init方法中初始化一个定时任务线程，去定时执行我们的查询任务.具体的任务实现是我们根据唯一code查询出来的结果集，以code为key转成map，然后我们队列中的每个Request对象都有自己的唯一code，我们根据code一一对应，给相应的future返回对应的查询结果。
         ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
         t = poolExecutor.scheduleAtFixedRate(()->{
             // System.out.println("run backend thread");
-            int size = appendQueue.size();
+            // int size = appendQueue.size();
+            // ArrayList<Integer> sizeList = new ArrayList<>();
+            boolean allEmpty = true;
+            for (int i=0; i<appendQueueNum; i++) {
+                sizeList[i] = appendQueueList.get(i).size();
+                if (sizeList[i] != 0) {
+                    allEmpty = false;
+                }
+            }
+
             //如果没有请求直接返回
-            if(size==0) {
+            if(allEmpty) {
                 // System.out.println("size = 0");
                 // count++;
                 // if (count == 10) {
@@ -115,9 +132,11 @@ public class iStorage {
             }
             // count = 0;
             List<AppendRequest> list = new ArrayList<>();
-            for (int i = 0; i < size;i++){
-                AppendRequest request = appendQueue.poll();
-                list.add(request);
+            for (int i=0; i<appendQueueNum; i++) {
+                for (int j=0; j<sizeList[i]; j++){
+                    AppendRequest request = appendQueueList.get(i).poll();
+                    list.add(request);
+                }
             }
             // System.out.println("批量处理:"+size);
             // List<String> codes = list.stream().map(s->s.code).collect(Collectors.toList());
@@ -235,7 +254,10 @@ public class iStorage {
         AppendRequest appendRequest = new AppendRequest(topic, queueId, offset, data);
         CompletableFuture<Integer> future = new CompletableFuture<>();
         appendRequest.future = future;
-        appendQueue.add(appendRequest);
+        // appendQueue.add(appendRequest);
+        int topicHash = Math.abs(topic.hashCode());
+        int index = topicHash % appendQueueNum;
+        appendQueueList.get(index).add(appendRequest);
         try {
             future.get();
             return;
