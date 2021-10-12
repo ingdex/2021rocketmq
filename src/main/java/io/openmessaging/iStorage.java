@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class iStorage {
 
     ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
-    final int poolNum = 4;
+    final int poolNum = 1;
     final int appendQueueNum = 2;
     ArrayList<iStoragePool> poolList = new ArrayList<>();
     // iStoragePool pool1 = new iStoragePool("pool1");
@@ -37,7 +37,7 @@ public class iStorage {
     static ScheduledFuture<?> t;
     // Logger logger = Logger.getLogger(iStorage.class);
 
-    private Queue<AppendRequest> appendQueue = new LinkedList<>();;
+    List<AppendRequest> appendList = new ArrayList<>();
     private final Lock lock = new ReentrantLock();
     //表示生产者线程
     private final Condition notFull = lock.newCondition();
@@ -104,7 +104,7 @@ public class iStorage {
                 pool.appendByFile(path, offset);
             }
         }
-        init();
+        // init();
     }
 
     iStoragePool getStoragePoolByPoolName(String poolName) {
@@ -126,7 +126,7 @@ public class iStorage {
         t = poolExecutor.scheduleAtFixedRate(()->{
             // System.out.println("run backend thread");
             lock.lock();
-            int size = appendQueue.size();
+            int size = appendList.size();
             // ArrayList<Integer> sizeList = new ArrayList<>();
             // boolean allEmpty = true;
             // for (int i=0; i<appendQueueNum; i++) {
@@ -153,7 +153,8 @@ public class iStorage {
             // appendQueueRead = tmp;
             List<AppendRequest> list = new ArrayList<>();
             for (int i=0; i<size; i++) {
-                AppendRequest request = appendQueue.poll();
+                AppendRequest request = null;
+                appendList.remove(request);
                 list.add(request);
             }
             // for (int i=0; i<appendQueueNum; i++) {
@@ -239,23 +240,23 @@ public class iStorage {
             keyList.add(key);
             dataList.add(request.data);
         }
-        // iStoragePool pool = poolList.get(0);
-        // pool.append(keyListEachPool.get(0), dataListEachPool.get(0));
-        for (int i=0; i<poolNum; i++) {
-            iStoragePool pool = poolList.get(i);
-            // pool.append(keyListEachPool.get(i), dataListEachPool.get(i));
-            Thread t = new poolIOWorker(pool, keyListEachPool.get(i), dataListEachPool.get(i));
-            appendThreads.add(t);
-            t.start();
-        }
-        try {
-            for (int i=0; i<poolNum; i++) {
-                Thread t = appendThreads.get(i);
-                t.join();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        iStoragePool pool = poolList.get(0);
+        pool.append(keyListEachPool.get(0), dataListEachPool.get(0));
+        // for (int i=0; i<poolNum; i++) {
+        //     iStoragePool pool = poolList.get(i);
+        //     // pool.append(keyListEachPool.get(i), dataListEachPool.get(i));
+        //     Thread t = new poolIOWorker(pool, keyListEachPool.get(i), dataListEachPool.get(i));
+        //     appendThreads.add(t);
+        //     t.start();
+        // }
+        // try {
+        //     for (int i=0; i<poolNum; i++) {
+        //         Thread t = appendThreads.get(i);
+        //         t.join();
+        //     }
+        // } catch (InterruptedException e) {
+        //     e.printStackTrace();
+        // }
 
         return null;
     }
@@ -275,8 +276,15 @@ public class iStorage {
         AppendRequest appendRequest = new AppendRequest(topic, queueId, offset, data);
         lock.lock();
         try {
-            appendQueue.add(appendRequest);
-            appendThread.await();
+            appendList.add(appendRequest);
+            // System.out.println(appendList.size());
+            if (appendList.size() == 40) {
+                batchAppend(appendList);
+                appendList.clear();
+                appendThread.signalAll();
+            } else {
+                appendThread.await();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
