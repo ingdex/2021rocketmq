@@ -23,7 +23,7 @@ public class iStoragePool {
     ArrayList<ByteBuffer> writeBufList;
     final int writeBufNum = 50;
     final int writeBufSize = 17 * 1024 * 50;
-    // Logger logger = Logger.getLogger(iStoragePool.class);
+    Logger logger = Logger.getLogger(iStoragePool.class);
     ByteBuffer writeBuf = ByteBuffer.allocateDirect(writeBufSize);
 
     public iStoragePool(String poolName) {
@@ -226,6 +226,7 @@ public class iStoragePool {
                 writeBuf.putInt(key.length());
                 writeBuf.put(key.getBytes());
                 writeBuf.putInt(data.remaining());
+                logger.debug(data);
                 writeBuf.put(data);
             }
             // writeBuf.rewind();
