@@ -104,7 +104,7 @@ public class iStorage {
                 pool.appendByFile(path, offset);
             }
         }
-        // init();
+        init();
     }
 
     iStoragePool getStoragePoolByPoolName(String poolName) {
@@ -146,41 +146,12 @@ public class iStorage {
                 lock.unlock();
                 return;
             }
-            // System.out.println(size);
-            // count = 0;
-            // LinkedBlockingQueue<AppendRequest> tmp = appendQueueWrite;
-            // appendQueueWrite = appendQueueRead;
-            // appendQueueRead = tmp;
-            List<AppendRequest> list = new ArrayList<>();
-            for (int i=0; i<size; i++) {
-                AppendRequest request = null;
-                appendList.remove(request);
-                list.add(request);
-            }
-            // for (int i=0; i<appendQueueNum; i++) {
-            //     for (int j=0; j<sizeList[i]; j++){
-            //         AppendRequest request = appendQueueList.get(i).poll();
-            //         list.add(request);
-            //     }
-            // }
-            // System.out.println("批量处理:"+size);
-            // List<String> codes = list.stream().map(s->s.code).collect(Collectors.toList());
-            // 合并之后的结果集
-            // long startTime = System.nanoTime();
-            List<Integer> batchResult = batchAppend(list);
-            // long endTime = System.nanoTime();
-            // long timeElapsed = endTime - startTime;
-            // System.out.println("Execution time in nanoseconds: " + timeElapsed);
+            List<Integer> batchResult = batchAppend(appendList);
 
-            // Map<String,Integer> responseMap = new HashMap<>();
-            // for (Integer result : batchResult) {
-            //     responseMap.put(result.topic, result);
-            // }
-
-            //返回对应的请求结果
+            // //返回对应的请求结果
             appendThread.signalAll();
             lock.unlock();
-        },0,50000,TimeUnit.NANOSECONDS);
+        },0,1000000,TimeUnit.NANOSECONDS);
     }
 
     //这个是个模拟批量查询的方法
