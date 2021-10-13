@@ -226,7 +226,7 @@ public class iStoragePool {
                 writeBuf.putInt(key.length());
                 writeBuf.put(key.getBytes());
                 writeBuf.putInt(data.remaining());
-                logger.debug(data);
+                // logger.debug(data);
                 writeBuf.put(data);
             }
             // writeBuf.rewind();

@@ -147,7 +147,7 @@ public class iStorage {
                 return;
             }
             List<Integer> batchResult = batchAppend(appendList);
-
+            appendList.clear();
             // //返回对应的请求结果
             appendThread.signalAll();
             lock.unlock();
