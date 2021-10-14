@@ -16,14 +16,15 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
     // iStorage storage = new iStorage("storage1");
     final int storageNum = 4;
-    ArrayList<iStorage> storageList = new ArrayList<>();
+    ArrayList<iStorage> storageList = new ArrayList<>(Arrays.asList(new iStorage("storage1"), new iStorage("storage2"), new iStorage("storage3"), new iStorage("storage4")));
+
     // Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
-    DefaultMessageQueueImpl() {
-        for (int i=0; i<storageNum; i++) {
-            storageList.add(new iStorage("storage" + i));
-        }
-    }
+    // DefaultMessageQueueImpl() {
+    //     for (int i=0; i<storageNum; i++) {
+    //         storageList.add(new iStorage("storage" + i));
+    //     }
+    // }
 
     iStorage getStorageByTopic(String topic) {
         int topicHash = Math.abs(topic.hashCode());
