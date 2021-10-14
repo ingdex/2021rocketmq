@@ -23,6 +23,7 @@ public class iStorage {
     ConcurrentHashMap <String, iStoragePool> topicPools = new ConcurrentHashMap<>();
     final int poolNum = 1;
     final int appendQueueNum = 2;
+    String storageName;
     ArrayList<iStoragePool> poolList = new ArrayList<>();
     // iStoragePool pool1 = new iStoragePool("pool1");
     // iStoragePool pool2 = new iStoragePool("pool2");
@@ -37,8 +38,11 @@ public class iStorage {
     static ScheduledFuture<?> t;
     // Logger logger = Logger.getLogger(iStorage.class);
 
-    List<AppendRequest> appendList = new ArrayList<>();
+    // List<AppendRequest> appendList = new ArrayList<>();
+    List<AppendRequest> appendListWrite = new ArrayList<>();
+    List<AppendRequest> appendListRead = new ArrayList<>();
     private final Lock lock = new ReentrantLock();
+    private final Lock readLock = new ReentrantLock();
     //表示生产者线程
     private final Condition notFull = lock.newCondition();
     //表示消费者线程
@@ -61,14 +65,14 @@ public class iStorage {
 
     }
 
-    iStorage() {
+    iStorage(String storageName) {
         // disk benchmark
         // Integer[] fileSizes = {1, 2, 4};
         // Integer[] blockSizes = {1024, 4096};
         // runTests(fileSizes, blockSizes);
-
+        this.storageName = storageName;
         for (int i=0; i<poolNum; i++) {
-            String poolName = "pool" + i;
+            String poolName = storageName + "pool" + i;
             poolList.add(new iStoragePool(poolName));
         }
 
@@ -98,13 +102,20 @@ public class iStorage {
                 long offset = Long.valueOf(dataFilename.substring(lastIndex1+1, lastIndex2));
                 iStoragePool pool = getStoragePoolByPoolName(poolName);
                 if (pool == null) {
-                    System.out.println("err pool name");
-                    break;
+                    // System.out.println("err pool name");
+                    continue;
                 }
                 pool.appendByFile(path, offset);
             }
         }
-        init();
+        // init();
+    }
+
+    void swapList(List<AppendRequest> listA, List<AppendRequest> listB) {
+        List<AppendRequest> tmp = listB;
+        listB = listA;
+        listA = tmp;
+        return;
     }
 
     iStoragePool getStoragePoolByPoolName(String poolName) {
@@ -117,42 +128,43 @@ public class iStorage {
         return null;
     }
     
-    public void init(){
-        System.out.println("init backend thread");
-        int[] sizeList = new int[appendQueueNum];
+    // public void init(){
+    //     System.out.println("init backend thread");
+    //     int[] sizeList = new int[appendQueueNum];
         
-    //在init方法中初始化一个定时任务线程，去定时执行我们的查询任务.具体的任务实现是我们根据唯一code查询出来的结果集，以code为key转成map，然后我们队列中的每个Request对象都有自己的唯一code，我们根据code一一对应，给相应的future返回对应的查询结果。
-        ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
-        t = poolExecutor.scheduleAtFixedRate(()->{
-            // System.out.println("run backend thread");
-            lock.lock();
-            int size = appendList.size();
-            // ArrayList<Integer> sizeList = new ArrayList<>();
-            // boolean allEmpty = true;
-            // for (int i=0; i<appendQueueNum; i++) {
-            //     sizeList[i] = appendQueueList.get(i).size();
-            //     if (sizeList[i] != 0) {
-            //         allEmpty = false;
-            //     }
-            // }
+    // //在init方法中初始化一个定时任务线程，去定时执行我们的查询任务.具体的任务实现是我们根据唯一code查询出来的结果集，以code为key转成map，然后我们队列中的每个Request对象都有自己的唯一code，我们根据code一一对应，给相应的future返回对应的查询结果。
+    //     ScheduledExecutorService poolExecutor = new ScheduledThreadPoolExecutor(1);
+    //     t = poolExecutor.scheduleAtFixedRate(()->{
+    //         // System.out.println("run backend thread");
+    //         lock.lock();
+    //         int size = appendListWrite.size();
+    //         // ArrayList<Integer> sizeList = new ArrayList<>();
+    //         // boolean allEmpty = true;
+    //         // for (int i=0; i<appendQueueNum; i++) {
+    //         //     sizeList[i] = appendQueueList.get(i).size();
+    //         //     if (sizeList[i] != 0) {
+    //         //         allEmpty = false;
+    //         //     }
+    //         // }
 
-            //如果没有请求直接返回
-            if(size == 0) {
-                // System.out.println("size = 0");
-                // count++;
-                // if (count == 10) {
-                //     System.exit(0);
-                // }
-                lock.unlock();
-                return;
-            }
-            List<Integer> batchResult = batchAppend(appendList);
-            appendList.clear();
-            // //返回对应的请求结果
-            appendThread.signalAll();
-            lock.unlock();
-        },0,1000000,TimeUnit.NANOSECONDS);
-    }
+    //         //如果没有请求直接返回
+    //         if(size == 0) {
+    //             // System.out.println("size = 0");
+    //             // count++;
+    //             // if (count == 10) {
+    //             //     System.exit(0);
+    //             // }
+    //             lock.unlock();
+    //             return;
+    //         }
+    //         swapList(appendListRead, appendListWrite);
+    //         List<Integer> batchResult = batchAppend(appendList);
+    //         appendList.clear();
+    //         // //返回对应的请求结果
+    //         appendThread.signalAll();
+    //         lock.unlock();
+    //     },0,1000000,TimeUnit.NANOSECONDS);
+    // }
 
     //这个是个模拟批量查询的方法
     public List<Integer> batchQuery(List<AppendRequest> requestList){
@@ -247,14 +259,24 @@ public class iStorage {
         AppendRequest appendRequest = new AppendRequest(topic, queueId, offset, data);
         lock.lock();
         try {
-            appendList.add(appendRequest);
+            appendListWrite.add(appendRequest);
             // System.out.println(appendList.size());
-            if (appendList.size() == 40) {
-                batchAppend(appendList);
-                appendList.clear();
+            if (appendListWrite.size() == 10) {
+                // readLock.lock();
+                // swapList(appendListRead, appendListWrite);
+                // readLock.unlock();
+                batchAppend(appendListWrite);
+                appendListWrite.clear();
                 appendThread.signalAll();
             } else {
-                appendThread.await();
+                appendThread.awaitNanos(100000000l);
+                // appendThread.await();
+                // readLock.lock();
+                // swapList(appendListRead, appendListWrite);
+                // readLock.unlock();
+                batchAppend(appendListWrite);
+                appendListWrite.clear();
+                appendThread.signalAll();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -14,14 +14,22 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     // private AtomicLong appendId = new AtomicLong(0L);
 
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
-    iStorage storage = new iStorage();
+    // iStorage storage = new iStorage("storage1");
+    final int storageNum = 4;
+    ArrayList<iStorage> storageList = new ArrayList<>();
     // Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
-    // DefaultMessageQueueImpl() {
-    //     Integer[] fileSizes = {1, 2, 4};
-    //     Integer[] blockSizes = {1024, 4096};
-    //     runTests(fileSizes, blockSizes);
-    // }
+    DefaultMessageQueueImpl() {
+        for (int i=0; i<storageNum; i++) {
+            storageList.add(new iStorage("storage" + i));
+        }
+    }
+
+    iStorage getStorageByTopic(String topic) {
+        int topicHash = Math.abs(topic.hashCode());
+        int index = topicHash % storageNum;
+        return storageList.get(index);
+    }
 
     // getOrPutDefault 若指定key不存在，则插入defaultValue并返回
     private <K, V> V getOrPutDefault(Map<K, V> map, K key, V defaultValue){
@@ -51,6 +59,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         // } 
         // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
+        iStorage storage = getStorageByTopic(topic);
         storage.append(topic, queueId, offset, data);
         
         // Map<Integer, Map<Long, ByteBuffer>> map1 = getOrPutDefault(appendData, topic, new HashMap<>());
@@ -64,6 +73,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
 
     @Override
     public Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
+        iStorage storage = getStorageByTopic(topic);
         Map<Integer, ByteBuffer> ret = storage.getRange(topic, queueId, offset, fetchNum);
         // if (queueId == 1527 && topic.equals("topic31")) {
         //     logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }");
