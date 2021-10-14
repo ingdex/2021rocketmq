@@ -4,7 +4,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.file.*;
 import java.io.IOException;
-
+import java.nio.channels.FileChannel;
+import java.io.RandomAccessFile;
 // import com.intel.pmem.llpl.TransactionalHeap;
 // import com.intel.pmem.llpl.Transaction;
 // import com.intel.pmem.llpl.util.LongART;
@@ -17,14 +18,16 @@ public class DiskBenchmarker {
     private final long NBLOCKS;
     private final int BLOCKSIZE; // 8KB
     private Path file;
-
+    private String fileName;
+    ByteBuffer buff;
     public DiskBenchmarker(int gigaBytes, int blockSize) {
         this.gigaBytes = gigaBytes;
         this.BLOCKSIZE = blockSize;
         this.NBLOCKS = 1024000000 / this.BLOCKSIZE * gigaBytes;
 
-        String fileName = iConfig.dataDir + "DiskBenchFile" + gigaBytes;
+        this.fileName = iConfig.dataDir + "DiskBenchFile" + gigaBytes;
         this.file = Paths.get(fileName);
+        buff = ByteBuffer.allocate(BLOCKSIZE);
     }
 
     public void pmWriteTest() {
@@ -33,16 +36,29 @@ public class DiskBenchmarker {
 
     public void writeTest() {
         try {
-            SeekableByteChannel out = Files.newByteChannel(file, EnumSet.of(CREATE, APPEND));
+            // SeekableByteChannel out = Files.newByteChannel(file, EnumSet.of(CREATE, APPEND));
+            RandomAccessFile memoryMappedFile = new RandomAccessFile(fileName, "rw");
+            FileChannel channel = memoryMappedFile.getChannel();
             for (int i = 0; i < NBLOCKS; i++) {
-                ByteBuffer buff = ByteBuffer.allocate(BLOCKSIZE);
-                out.write(buff);
+                buff.rewind();
+                long bytes = buff.remaining();
+                long t0 = System.nanoTime();
+                channel.write(buff);
+                channel.force(true);
+                long t1 = System.nanoTime();
+                System.out.println(resultPrinter(t0, t1, bytes, "ChannelWrite"));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
+    private static String resultPrinter(long t0, long t1, long bytes, String info) {
+        double duration = (t1 - t0) / 1000000000d; // in seconds.
+        double MB = (bytes / 1024d / 1024d);
+        double speedInMBs = MB / duration;
+        String output = (info + " - " + MB + " MB in " + duration + "s - " + speedInMBs + " MB/s");
+        return output;
+    }
     public void readTest() {
         try {
             SeekableByteChannel in = Files.newByteChannel(file, EnumSet.of(CREATE, READ));

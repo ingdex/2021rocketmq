@@ -21,8 +21,8 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
     // DefaultMessageQueueImpl() {
-    //     Integer[] fileSizes = {1, 2, 4};
-    //     Integer[] blockSizes = {1024, 4096};
+    //     Integer[] fileSizes = {1};
+    //     Integer[] blockSizes = {4096, 40960, 409600, 4096000, 40960000};
     //     runTests(fileSizes, blockSizes);
     // }
 
@@ -76,6 +76,10 @@ public class DefaultMessageQueueImpl extends MessageQueue {
 
     @Override
     public Map<Integer, ByteBuffer> getRange(String topic, int queueId, long offset, int fetchNum) {
+        Integer[] fileSizes = {1};
+        Integer[] blockSizes = {4096, 40960, 409600, 4096000, 40960000};
+        runTests(fileSizes, blockSizes);
+        System.exit(0);
         iStorage storage = getStorageByTopic(topic);
         Map<Integer, ByteBuffer> ret = storage.getRange(topic, queueId, offset, fetchNum);
         // if (queueId == 1527 && topic.equals("topic31")) {

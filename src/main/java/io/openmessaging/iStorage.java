@@ -244,8 +244,7 @@ public class iStorage {
         //     e.printStackTrace();
         // }
         long t1 = System.nanoTime();
-        System.out.println(resultPrinter(t0, t1, bytes, "Write"));
-        System.out.println("append complete");
+        System.out.println(resultPrinter(t0, t1, bytes, "pool.append"));
 
         return null;
     }
@@ -287,7 +286,10 @@ public class iStorage {
                 // swapList(appendListRead, appendListWrite);
                 // readLock.unlock();
                 // System.out.println("appendListWrite.size() = 10" + appendListWrite.size());
+                long t0 = System.nanoTime();
                 batchAppend(appendListWrite);
+                long t1 = System.nanoTime();
+                System.out.println(resultPrinter(t0, t1, 0, "batchAppend"));
                 appendListWrite.clear();
                 appendThread.signalAll();
             } else {
