@@ -261,22 +261,31 @@ public class iStorage {
         try {
             appendListWrite.add(appendRequest);
             // System.out.println(appendList.size());
-            if (appendListWrite.size() == 10) {
+            if (appendListWrite.size() == 1) {
+                // System.out.println("appendListWrite.size() = " + appendListWrite.size());
+                appendThread.awaitNanos(100000000l);
+                if (appendListWrite.size() != 0) {
+                    batchAppend(appendListWrite);
+                    appendListWrite.clear();
+                    appendThread.signalAll();
+                }
+            } else if (appendListWrite.size() == 10) {
                 // readLock.lock();
                 // swapList(appendListRead, appendListWrite);
                 // readLock.unlock();
+                // System.out.println("appendListWrite.size() = 10" + appendListWrite.size());
                 batchAppend(appendListWrite);
                 appendListWrite.clear();
                 appendThread.signalAll();
             } else {
-                appendThread.awaitNanos(100000000l);
-                // appendThread.await();
+                // System.out.println("await");
+                appendThread.await();
                 // readLock.lock();
                 // swapList(appendListRead, appendListWrite);
                 // readLock.unlock();
-                batchAppend(appendListWrite);
-                appendListWrite.clear();
-                appendThread.signalAll();
+                // batchAppend(appendListWrite);
+                // appendListWrite.clear();
+                // appendThread.signalAll();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
