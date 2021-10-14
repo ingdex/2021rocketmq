@@ -48,6 +48,7 @@ public class iStorage {
     //表示消费者线程
     private final Condition notEmpty = lock.newCondition();
     private final Condition appendThread = lock.newCondition();
+    long lastBatchTime = 0;
     class AppendRequest {
         String topic;
         int queueId;
@@ -275,8 +276,9 @@ public class iStorage {
             // System.out.println(appendList.size());
             if (appendListWrite.size() == 1) {
                 // System.out.println("appendListWrite.size() = " + appendListWrite.size());
+                long time = lastBatchTime;
                 appendThread.awaitNanos(10000000000l);
-                if (appendListWrite.size() != 0) {
+                if ((time == lastBatchTime) && (appendListWrite.size() != 0)) {
                     batchAppend(appendListWrite);
                     appendListWrite.clear();
                     appendThread.signalAll();
@@ -287,6 +289,7 @@ public class iStorage {
                 // readLock.unlock();
                 // System.out.println("appendListWrite.size() = 10" + appendListWrite.size());
                 long t0 = System.nanoTime();
+                lastBatchTime = t0;
                 batchAppend(appendListWrite);
                 long t1 = System.nanoTime();
                 System.out.println(resultPrinter(t0, t1, 0, "batchAppend"));
