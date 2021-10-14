@@ -18,17 +18,19 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     final int storageNum = 4;
     ArrayList<iStorage> storageList = new ArrayList<>(Arrays.asList(new iStorage("storage1"), new iStorage("storage2"), new iStorage("storage3"), new iStorage("storage4")));
 
-    // Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
+    Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
     // DefaultMessageQueueImpl() {
-    //     for (int i=0; i<storageNum; i++) {
-    //         storageList.add(new iStorage("storage" + i));
-    //     }
+    //     Integer[] fileSizes = {1, 2, 4};
+    //     Integer[] blockSizes = {1024, 4096};
+    //     runTests(fileSizes, blockSizes);
     // }
 
     iStorage getStorageByTopic(String topic) {
-        int topicHash = Math.abs(topic.hashCode());
+        // int topicHash = Math.abs(topic.substring(5).hashCode());
+        int topicHash = Integer.valueOf(topic.substring(5));
         int index = topicHash % storageNum;
+        // System.out.println(topic.substring(5) + " " + index);
         return storageList.get(index);
     }
 
@@ -58,7 +60,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         //     }
         //     System.out.print('\n');
         // } 
-        // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
+        logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         iStorage storage = getStorageByTopic(topic);
         storage.append(topic, queueId, offset, data);
@@ -87,7 +89,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         //         System.out.print('\n');
         //     }
         // }
-        // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
+        logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
         return ret;
     }
 

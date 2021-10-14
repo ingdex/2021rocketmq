@@ -233,7 +233,12 @@ public class iStoragePool {
             writeBuf.limit(curTask.totalWriteBufSize);
             writeBuf.position(0);
             try {
+                long t0 = System.nanoTime();
+                long bytes = writeBuf.remaining();
                 curTask.channel.write(writeBuf, curTask.relativeWritePosition);
+                long t1 = System.nanoTime();
+                System.out.println(resultPrinter(t0, t1, bytes, "ChannelWrite"));
+                System.out.println("write complete");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -241,7 +246,12 @@ public class iStoragePool {
         // force to ssd
         for (int i=0; i<taskList.size(); i++) {
             try {
+                long t0 = System.nanoTime();
+                long bytes = writeBuf.remaining();
                 curTask.channel.force(true);
+                long t1 = System.nanoTime();
+                System.out.println(resultPrinter(t0, t1, bytes, "Force TaksList size: " + taskList.size()));
+                System.out.println("force complete");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -249,7 +259,13 @@ public class iStoragePool {
         
         return;
     }
- 
+    private static String resultPrinter(long t0, long t1, long bytes, String info) {
+        double duration = (t1 - t0) / 1000000000d; // in seconds.
+        double MB = (bytes / 1024d / 1024d);
+        double speedInMBs = MB / duration;
+        String output = (info + " - " + MB + " MB in " + duration + "s - " + speedInMBs + " MB/s");
+        return output;
+    }
     // public void append(ArrayList<String> keyList, ArrayList<ByteBuffer> dataList){
     //     int num = keyList.size();
     //     int writeBufSize = 0;

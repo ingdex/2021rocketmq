@@ -201,6 +201,8 @@ public class iStorage {
     }
 
     public List<Integer> batchAppend(List<AppendRequest> requestList){
+        long t0 = System.nanoTime();
+        long bytes = 0;
         ArrayList<String> keyList;
         ArrayList<ByteBuffer> dataList;
         ArrayList<ArrayList<String>> keyListEachPool = new ArrayList<>();
@@ -222,6 +224,7 @@ public class iStorage {
             dataList = dataListEachPool.get(poolIndex);
             keyList.add(key);
             dataList.add(request.data);
+            bytes += request.data.remaining();
         }
         iStoragePool pool = poolList.get(0);
         pool.append(keyListEachPool.get(0), dataListEachPool.get(0));
@@ -240,10 +243,20 @@ public class iStorage {
         // } catch (InterruptedException e) {
         //     e.printStackTrace();
         // }
+        long t1 = System.nanoTime();
+        System.out.println(resultPrinter(t0, t1, bytes, "Write"));
+        System.out.println("append complete");
 
         return null;
     }
-
+    private static String resultPrinter(long t0, long t1, long bytes, String info) {
+        double duration = (t1 - t0) / 1000000000d; // in seconds.
+        double MB = (bytes / 1024d / 1024d);
+        double speedInMBs = MB / duration;
+        String output = (info + " - " + MB + " MB in " + duration + "s - " + speedInMBs + " MB/s");
+        return output;
+    }
+    
     iStoragePool getStoragePoolByTopic(String topic) {
         // int topicIndex = Integer.valueOf(topic.substring(5));
         // int poolIndex = topicIndex % poolNum;
@@ -263,7 +276,7 @@ public class iStorage {
             // System.out.println(appendList.size());
             if (appendListWrite.size() == 1) {
                 // System.out.println("appendListWrite.size() = " + appendListWrite.size());
-                appendThread.awaitNanos(100000000l);
+                appendThread.awaitNanos(10000000000l);
                 if (appendListWrite.size() != 0) {
                     batchAppend(appendListWrite);
                     appendListWrite.clear();
