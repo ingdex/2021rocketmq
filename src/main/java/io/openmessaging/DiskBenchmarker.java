@@ -20,6 +20,35 @@ public class DiskBenchmarker {
     private Path file;
     private String fileName;
     ByteBuffer buff;
+
+    static class IOWorker extends Thread {
+        FileChannel channel;
+        long NBLOCKS;
+        int BLOCKSIZE;
+        ByteBuffer buff;
+
+        IOWorker(FileChannel channel, long NBLOCKS, int BLOCKSIZE) {
+            this.channel = channel; 
+            this.NBLOCKS = NBLOCKS;
+            this.BLOCKSIZE = BLOCKSIZE;
+            buff = ByteBuffer.allocate(BLOCKSIZE);;
+        }
+
+        @Override
+        public void run() {
+            // System.out.println("start append thread" + Thread.currentThread().getName());
+            for (int i=0; i<NBLOCKS; i++) {
+                buff.rewind();
+                try {
+                    channel.write(buff);
+                    channel.force(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public DiskBenchmarker(int gigaBytes, int blockSize) {
         this.gigaBytes = gigaBytes;
         this.BLOCKSIZE = blockSize;

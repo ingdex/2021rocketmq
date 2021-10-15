@@ -15,16 +15,17 @@ public class DefaultMessageQueueImpl extends MessageQueue {
 
     // ConcurrentHashMap<String, Map<Integer, Map<Long, ByteBuffer>>> appendData = new ConcurrentHashMap<>();
     // iStorage storage = new iStorage("storage1");
-    final int storageNum = 4;
+    final int storageNum = 1;
     ArrayList<iStorage> storageList = new ArrayList<>(Arrays.asList(new iStorage("storage1"), new iStorage("storage2"), new iStorage("storage3"), new iStorage("storage4")));
 
     Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
-    // DefaultMessageQueueImpl() {
-    //     Integer[] fileSizes = {1};
-    //     Integer[] blockSizes = {4096, 40960, 409600, 4096000, 40960000};
-    //     runTests(fileSizes, blockSizes);
-    // }
+    DefaultMessageQueueImpl() {
+        Integer[] fileSizes = {1};
+        Integer[] blockSizes = {1024, 4096, 40960, 409600, 4096000, 40960000};
+        runTests(fileSizes, blockSizes);
+        System.exit(0);
+    }
 
     iStorage getStorageByTopic(String topic) {
         // int topicHash = Math.abs(topic.substring(5).hashCode());
@@ -48,10 +49,6 @@ public class DefaultMessageQueueImpl extends MessageQueue {
     public long append(String topic, int queueId, ByteBuffer data){
         // 获取该 topic-queueId 下的最大位点 offset
         // long x = appendId.getAndIncrement();
-        Integer[] fileSizes = {1};
-        Integer[] blockSizes = {4096, 40960, 409600, 4096000, 40960000};
-        runTests(fileSizes, blockSizes);
-        System.exit(0);
         Map<Integer, Long> topicOffset = getOrPutDefault(appendOffset, topic, new HashMap<>());
         long offset = topicOffset.getOrDefault(queueId, 0L);
         // 更新最大位点

@@ -414,14 +414,14 @@
 //         // System.out.println("Total_Memory(-Xms ) =  "+ totalMemory + " 字节  " + (totalMemory / (double)1024/1024)+"MB");
 //         // System.out.println("Max_Memory(-Xmx ) =  "+ maxMemory + " 字节  " + (maxMemory / (double)1024/1024)+"MB");
 //         int topicNum = 40;
-//         int queueNum = 100;
-//         int msgNum = 200;
-//         int dataSize = 4096;
+//         int queueNum = 10;
+//         int msgNum = 20;
+//         int dataSize = 10240;
 //         boolean check = false;
 //         test t = new test();
 //         DefaultMessageQueueImpl mq = new DefaultMessageQueueImpl();
 //         // singleThreadTest(mq);
-//         // multiThreadTest(mq, topicNum, queueNum, msgNum, dataSize, check);
+//         multiThreadTest(mq, topicNum, queueNum, msgNum, dataSize, check);
 //         return;
 //     }
 // }

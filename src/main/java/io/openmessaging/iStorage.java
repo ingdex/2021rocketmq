@@ -277,13 +277,13 @@ public class iStorage {
             if (appendListWrite.size() == 1) {
                 // System.out.println("appendListWrite.size() = " + appendListWrite.size());
                 long time = lastBatchTime;
-                appendThread.awaitNanos(10000000000l);
+                appendThread.awaitNanos(100000000l);
                 if ((time == lastBatchTime) && (appendListWrite.size() != 0)) {
                     batchAppend(appendListWrite);
                     appendListWrite.clear();
                     appendThread.signalAll();
                 }
-            } else if (appendListWrite.size() == 10) {
+            } else if (appendListWrite.size() == 40) {
                 // readLock.lock();
                 // swapList(appendListRead, appendListWrite);
                 // readLock.unlock();
