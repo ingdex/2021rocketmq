@@ -61,7 +61,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         //     }
         //     System.out.print('\n');
         // } 
-        logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
+        // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         // logger.debug("append: topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", datasize: " + String.valueOf(data.remaining()));
         iStorage storage = getStorageByTopic(topic);
         storage.append(topic, queueId, offset, data);
@@ -91,7 +91,7 @@ public class DefaultMessageQueueImpl extends MessageQueue {
         //         System.out.print('\n');
         //     }
         // }
-        logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
+        // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset: " + String.valueOf(offset) + ", fetchNum: " + String.valueOf(fetchNum) + " }\n\tret: " + ret.toString());
         return ret;
     }
 

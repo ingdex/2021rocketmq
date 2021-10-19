@@ -171,9 +171,9 @@ public class iStoragePool {
     }
  
     public void append(ArrayList<String> keyList, ArrayList<ByteBuffer> dataList){
-        long t2 = System.nanoTime();
-        long t0 = System.nanoTime();
-        long totalBytes = 0;
+        // long t2 = System.nanoTime();
+        // long t0 = System.nanoTime();
+        // long totalBytes = 0;
         // long bytes = writeBuf.remaining();
         int num = keyList.size();
         int writeBufSize = 0;
@@ -232,11 +232,11 @@ public class iStoragePool {
         if (curTask.requestNum != 0) {
             taskList.add(curTask);
         }
-        long t1 = System.nanoTime();
-        System.out.println(resultPrinter(t0, t1, 0, "TaskList op"));
+        // long t1 = System.nanoTime();
+        // System.out.println(resultPrinter(t0, t1, 0, "TaskList op"));
         int currentRequestPos = 0;
         // logger.debug("taskList.size " + taskList.size() + " all requestNum " + keyList.size());
-        t0 = System.nanoTime();
+        // t0 = System.nanoTime();
         for (int i=0; i<taskList.size(); i++) {
             
             curTask = taskList.get(i);
@@ -261,23 +261,23 @@ public class iStoragePool {
             writeBuf.position(0);
             
             long bytes = writeBuf.remaining();
-            totalBytes += bytes;
+            // totalBytes += bytes;
             
             try {
-                long t4 = System.nanoTime();
+                // long t4 = System.nanoTime();
                 
                 curTask.channel.write(writeBuf, curTask.relativeWritePosition);
-                long t5 = System.nanoTime();
-                System.out.println(resultPrinter(t4, t5, bytes, "ChannelWrite"));
-                System.out.println("write complete");
+                // long t5 = System.nanoTime();
+                // System.out.println(resultPrinter(t4, t5, bytes, "ChannelWrite"));
+                // System.out.println("write complete");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        t1 = System.nanoTime();
-        System.out.println(resultPrinter(t0, t1, totalBytes, "CopyBuffer & ChannelWrite"));
-        // force to ssd
-        t0 = System.nanoTime();
+        // t1 = System.nanoTime();
+        // System.out.println(resultPrinter(t0, t1, totalBytes, "CopyBuffer & ChannelWrite"));
+        // // force to ssd
+        // t0 = System.nanoTime();
         for (int i=0; i<taskList.size(); i++) {
             try {
                 
@@ -288,11 +288,11 @@ public class iStoragePool {
                 e.printStackTrace();
             }
         }
-        t1 = System.nanoTime();
-        System.out.println(resultPrinter(t0, t1, totalBytes, "Force TaksList size: " + taskList.size()));
-        System.out.println("force complete");
-        long t3 = System.nanoTime();
-        System.out.println(resultPrinter(t0, t1, totalBytes, "pool.append.inner: " + taskList.size()));
+        // t1 = System.nanoTime();
+        // System.out.println(resultPrinter(t0, t1, totalBytes, "Force TaksList size: " + taskList.size()));
+        // System.out.println("force complete");
+        // long t3 = System.nanoTime();
+        // System.out.println(resultPrinter(t0, t1, totalBytes, "pool.append.inner: " + taskList.size()));
         return;
     }
     private static String resultPrinter(long t0, long t1, long bytes, String info) {
