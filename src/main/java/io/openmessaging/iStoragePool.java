@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 // import com.alibaba.fastjson.serializer.ByteBufferCodec;
 
 import java.nio.channels.FileChannel;
+import java.nio.MappedByteBuffer;
 import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +15,8 @@ import org.apache.log4j.Logger;
 public class iStoragePool {
     ConcurrentHashMap <String, iMessage> appendMsg = new ConcurrentHashMap<>();
     ConcurrentHashMap <String, FileChannel> channelMap = new ConcurrentHashMap<>();
+    
+    ConcurrentHashMap <String, MappedByteBuffer> mappedByteBufferMap = new ConcurrentHashMap<>();
     // private FileChannel channel;
     long pyhsicalOffset = 0;    // 当前写入位置距离StoragePool首地址的绝对偏移
     long currentBarrierOffset = 0;
@@ -86,6 +89,22 @@ public class iStoragePool {
 
         return ret;
     }
+
+    // public FileChannel getMappedByteBuffer(String filename) {
+    //     MappedByteBuffer ret = null;
+    //     ret = mappedByteBufferMap.get(filename);
+    //     if (ret == null) {
+    //         try {
+    //             RandomAccessFile memoryMappedFile = new RandomAccessFile(new File(filename), "rw");
+    //             FileChannel channel = memoryMappedFile.getChannel();
+    //             mappedByteBufferMap.put(filename, ret);
+    //         } catch (Exception e) {
+    //             e.printStackTrace();
+    //         }
+    //     }
+
+    //     return ret;
+    // }
 
     // 线程不安全
     public long append(String key, ByteBuffer data){
@@ -283,99 +302,6 @@ public class iStoragePool {
         String output = (info + " - " + MB + " MB in " + duration + "s - " + speedInMBs + " MB/s");
         return output;
     }
-    // public void append(ArrayList<String> keyList, ArrayList<ByteBuffer> dataList){
-    //     int num = keyList.size();
-    //     int writeBufSize = 0;
-    //     // int totalWriteBufSize = 0;
-    //     ByteBuffer writeBuf;
-    //     ArrayList<Integer> totalWriteBufLenList = new ArrayList<>();
-    //     ArrayList<Integer> requestNumList = new ArrayList<>();
-    //     ArrayList<FileChannel> channelList = new ArrayList<>();
-    //     ArrayList<Long> relativeWritePositionList = new ArrayList<>();
-    //     ArrayList<Task> taskList = new ArrayList<>();
-    //     // int requestNum = 0;
-    //     long dataPhysicalOffset;   // 数据段起始地址在storagepool中的偏移
-    //     String filename_t = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
-    //     FileChannel channel_t = getFileChannel(filename_t);
-    //     Task curTask = new Task(0, 0, channel_t, pyhsicalOffset, dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data");
-    //     // may overflow
-    //     for (int i=0; i<num; i++) {
-    //         String key = keyList.get(i);
-    //         ByteBuffer data = dataList.get(i);
-    //         // Disk layout:
-    //         // || sizeof(key) | key | sizeof(data) | data ||
-    //         writeBufSize = 4 + key.getBytes().length + 4 + data.remaining();
-    //         // 当前文件空间不足
-    //         if (pyhsicalOffset + writeBufSize > currentBarrierOffset + FILESIZE) {
-    //             if (curTask.totalWriteBufSize == 0) {
-    //                 currentBarrierOffset = pyhsicalOffset;
-    //                 curTask.filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
-    //                 curTask.requestNum = 1;
-    //                 curTask.totalWriteBufSize = writeBufSize;
-    //                 curTask.channel = getFileChannel(curTask.filename);
-    //                 curTask.relativeWritePosition = pyhsicalOffset;
-    //                 pyhsicalOffset += writeBufSize;
-    //                 dataPhysicalOffset = pyhsicalOffset - data.remaining();
-    //                 iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), curTask.filename);
-    //                 appendMsg.put(key, msg);
-    //                 continue;
-    //             }
-    //             taskList.add(curTask);
-    //             curTask.reset();
-
-    //             currentBarrierOffset = pyhsicalOffset;
-    //             curTask.requestNum = 1;
-    //             curTask.totalWriteBufSize = writeBufSize;
-    //             curTask.relativeWritePosition = pyhsicalOffset;
-    //             curTask.filename = dir + poolName + "_" + String.valueOf(currentBarrierOffset) + ".data";
-    //             curTask.channel = getFileChannel(curTask.filename);
-    //             pyhsicalOffset += writeBufSize;
-    //             dataPhysicalOffset = pyhsicalOffset - data.remaining();
-    //             iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), curTask.filename);
-    //             appendMsg.put(key, msg);
-    //             continue;
-    //         }
-    //         pyhsicalOffset += writeBufSize;
-    //         curTask.requestNum++;
-    //         curTask.totalWriteBufSize += writeBufSize;
-    //         dataPhysicalOffset = pyhsicalOffset - data.remaining();
-    //         iMessage msg = new iMessage(currentBarrierOffset, dataPhysicalOffset, data.remaining(), curTask.filename);
-    //         appendMsg.put(key, msg);
-    //     }
-    //     if (curTask.requestNum != 0) {
-    //         taskList.add(curTask);
-    //     }
-    //     int currentRequestPos = 0;
-    //     for (int i=0; i<taskList.size(); i++) {
-    //         curTask = taskList.get(i);
-    //         writeBuf = ByteBuffer.allocate(curTask.totalWriteBufSize);
-    //         for (int j=0; j<curTask.requestNum; j++) {
-    //             String key = keyList.get(currentRequestPos);
-    //             ByteBuffer data = dataList.get(currentRequestPos);
-    //             currentRequestPos++;
-    //             writeBuf.putInt(key.length());
-    //             writeBuf.put(key.getBytes());
-    //             writeBuf.putInt(data.remaining());
-    //             writeBuf.put(data);
-    //         }
-    //         writeBuf.flip();
-    //         try {
-    //             curTask.channel.write(writeBuf, curTask.relativeWritePosition);
-    //         } catch (IOException e) {
-    //             e.printStackTrace();
-    //         }
-    //     }
-    //     // force to ssd
-    //     for (int i=0; i<taskList.size(); i++) {
-    //         try {
-    //             curTask.channel.force(true);
-    //         } catch (IOException e) {
-    //             e.printStackTrace();
-    //         }
-    //     }
-        
-    //     return;
-    // }
 
     public synchronized ByteBuffer get(String key) {
         // logger.debug("getRange: { topic: " + String.valueOf(topic) + ", queueId: " + String.valueOf(queueId) + ", offset" + String.valueOf(offset) + ", fetchNum" + String.valueOf(fetchNum) + " }");

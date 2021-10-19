@@ -284,10 +284,7 @@ public class iStorage {
                     appendThread.signalAll();
                 }
             } else if (appendListWrite.size() == 40) {
-                // readLock.lock();
-                // swapList(appendListRead, appendListWrite);
-                // readLock.unlock();
-                // System.out.println("appendListWrite.size() = 10" + appendListWrite.size());
+
                 long t0 = System.nanoTime();
                 lastBatchTime = t0;
                 batchAppend(appendListWrite);

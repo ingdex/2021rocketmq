@@ -20,12 +20,12 @@ public class DefaultMessageQueueImpl extends MessageQueue {
 
     Logger logger = Logger.getLogger(DefaultMessageQueueImpl.class);
 
-    DefaultMessageQueueImpl() {
-        Integer[] fileSizes = {1};
-        Integer[] blockSizes = {1024, 4096, 40960, 409600, 4096000, 40960000};
-        runTests(fileSizes, blockSizes);
-        System.exit(0);
-    }
+    // DefaultMessageQueueImpl() {
+    //     Integer[] fileSizes = {1};
+    //     Integer[] blockSizes = {1024, 4096, 40960, 409600, 4096000, 40960000};
+    //     runTests(fileSizes, blockSizes);
+    //     System.exit(0);
+    // }
 
     iStorage getStorageByTopic(String topic) {
         // int topicHash = Math.abs(topic.substring(5).hashCode());
