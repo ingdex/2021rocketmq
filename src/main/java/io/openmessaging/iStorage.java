@@ -178,6 +178,9 @@ public class iStorage {
         iStoragePool pool;
         ArrayList<String> keyList;
         ArrayList<ByteBuffer> dataList;
+        Lock lock;
+        Condition notFull;
+        Condition notEmpty;
 
         class FileMessage {
             String topic;
@@ -188,10 +191,11 @@ public class iStorage {
             
         }
 
-        poolIOWorker(iStoragePool pool, ArrayList<String> keyList, ArrayList<ByteBuffer> dataList) {
+        poolIOWorker(iStoragePool pool, ArrayList<String> keyList, ArrayList<ByteBuffer> dataList, Lock lock, Condition notFull, Condition notEmpty) {
             this.pool = pool;
             this.keyList = keyList;
             this.dataList = dataList;
+
         }
 
         @Override
@@ -202,7 +206,7 @@ public class iStorage {
     }
 
     public List<Integer> batchAppend(List<AppendRequest> requestList){
-        long t0 = System.nanoTime();
+        // long t0 = System.nanoTime();
         long bytes = 0;
         ArrayList<String> keyList;
         ArrayList<ByteBuffer> dataList;
@@ -244,8 +248,8 @@ public class iStorage {
         // } catch (InterruptedException e) {
         //     e.printStackTrace();
         // }
-        long t1 = System.nanoTime();
-        System.out.println(resultPrinter(t0, t1, bytes, "pool.append"));
+        // long t1 = System.nanoTime();
+        // System.out.println(resultPrinter(t0, t1, bytes, "pool.append"));
 
         return null;
     }
@@ -288,8 +292,8 @@ public class iStorage {
                 long t0 = System.nanoTime();
                 lastBatchTime = t0;
                 batchAppend(appendListWrite);
-                long t1 = System.nanoTime();
-                System.out.println(resultPrinter(t0, t1, 0, "batchAppend"));
+                // long t1 = System.nanoTime();
+                // System.out.println(resultPrinter(t0, t1, 0, "batchAppend"));
                 appendListWrite.clear();
                 appendThread.signalAll();
             } else {
