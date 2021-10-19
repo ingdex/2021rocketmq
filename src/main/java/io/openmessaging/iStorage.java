@@ -277,7 +277,7 @@ public class iStorage {
             if (appendListWrite.size() == 1) {
                 // System.out.println("appendListWrite.size() = " + appendListWrite.size());
                 long time = lastBatchTime;
-                appendThread.awaitNanos(100000000l);
+                appendThread.awaitNanos(10000000l);
                 if ((time == lastBatchTime) && (appendListWrite.size() != 0)) {
                     batchAppend(appendListWrite);
                     appendListWrite.clear();
